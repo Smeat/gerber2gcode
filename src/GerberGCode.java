@@ -70,10 +70,19 @@ public class GerberGCode {
 		
 		int XYFeedrate = 1000;
 		int ZFeedrate = 70;
+
+		float drawingHeight = 1.8f;
+		float freemoveHeight = 3.8f;//1.7f;
+
 		
-		public GerberGCode(float penWidth)
+		public GerberGCode(float penWidth, float drawingHeight, float freemoveHeight, int XYFeedrate, int ZFeedrate)
 		{
 			this.penWidth = penWidth;
+			this.drawingHeight = drawingHeight;
+			this.freemoveHeight = freemoveHeight;
+			this.XYFeedrate = XYFeedrate;
+			this.ZFeedrate = ZFeedrate;
+			
 			enableAbsolute();
 			
 		}
@@ -133,7 +142,6 @@ public class GerberGCode {
 		
 		public void enableDrawing()
 		{
-			float drawingHeight = 1.8f;
 			if(!dawingOn)
 			{
 				addFeedForMove();
@@ -145,7 +153,6 @@ public class GerberGCode {
 		
 		public void disableDrawing()
 		{
-			float freemoveHeight = 3.8f;//1.7f;
 			if(dawingOn)
 			{
 				addFeedForMove();
@@ -189,7 +196,7 @@ public class GerberGCode {
 			int numberOfLines = Math.round(curAperture.width/penWidth);
 			if(numberOfLines < 1 || multiline == false) numberOfLines = 1;
 			
-			System.out.println("Drawing "+numberOfLines);
+			//System.out.println("Drawing "+numberOfLines);
 			
 			if(numberOfLines > 1)
 			{

@@ -37,11 +37,9 @@ public class Cords
 			{
 				if(inInch)
 				{
-					int offsetY=30;
-					int offsetX=30;
-					
-					x = x*25.4f+offsetX;
-					y = y*25.4f+offsetY;
+
+					x = x*25.4f;
+					y = y*25.4f;
 					
 					inInch=false;
 				}

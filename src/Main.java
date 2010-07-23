@@ -30,7 +30,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		GerberGCode gerberGcode = new GerberGCode(10.0f);
+		GerberGCode gerberGcode; 
 		String[] splitline;
 		boolean debug = false;
 		
@@ -38,6 +38,17 @@ public class Main {
 		String line;
 		String formatX = "23", formatY="23";
 		boolean inInch = false;
+		
+
+		// Config
+		float penWidth = 0.7f;		
+		float offsetX=40;
+		float offsetY=40;
+		int XYFeedrate = 1000;
+		int ZFeedrate = 70;
+		float drawingHeight = 1.8f;
+		float freemoveHeight = 3.8f;//1.7f;
+		// Config end
 		
 		String outputFilename, inputFilename;
 
@@ -50,6 +61,16 @@ public class Main {
 		}
 		inputFilename = args[0];
 		outputFilename = args[1];
+		
+		System.out.println("Input: " + inputFilename);
+		System.out.println("Output: " + outputFilename+"\n");
+		System.out.println("Pen Width: " + penWidth + " mm");
+		System.out.println("Offset X: " + offsetX + " mm");
+		System.out.println("Offset Y: " + offsetY + " mm");
+		System.out.println("Drawing Height: " + drawingHeight + " mm");
+		System.out.println("Freemove Height: " + freemoveHeight + " mm\n");
+		
+		gerberGcode = new GerberGCode(penWidth, drawingHeight, freemoveHeight, XYFeedrate, ZFeedrate); 
 		
 		// processing Gerber file
 		try {
@@ -75,12 +96,12 @@ public class Main {
 					
 					
 					line = line.substring(4, line.length()-2);
-					apertureNum = line.substring(0, 2); //splitline[0];// splitline[0].substring(4, splitline[0].length()-1);
+					apertureNum = line.substring(0, 2); 
 					
 					line = line.substring(2);
 					splitline = line.split(",");
-					apertureType = splitline[0];// splitline[0].substring(splitline[0].length()-1);
-					apertureSize = splitline[1]; // splitline[1].substring(0, splitline[1].length()-2);
+					apertureType = splitline[0];
+					apertureSize = splitline[1]; 
 							
 					if(debug) 
 					{
@@ -108,7 +129,7 @@ public class Main {
 					}
 					else
 					{
-						System.out.println("!!!!!!!! aparture type: " + apertureType + " not supported " + line);
+						System.out.println(" [-] aparture type: " + apertureType + " not supported [" + line+"]\n");
 						//System.exit(-1);
 					}
 					
@@ -128,6 +149,9 @@ public class Main {
 				{
 					gerberGcode.setImperial();
 					inInch = true;
+					
+					offsetX = offsetX/25.4f;
+					offsetY = offsetY/25.4f;
 				}
 				else
 				if(line.startsWith("G71"))
@@ -139,7 +163,7 @@ public class Main {
 				{
 					int aperture;
 					
-					aperture = Integer.valueOf(line.substring(4).trim());
+					aperture = Integer.valueOf(line.substring(4, line.length()-1).trim());
 					gerberGcode.selectAperture(aperture);
 									
 				}
@@ -154,7 +178,11 @@ public class Main {
 					x = Float.valueOf(line.substring(1, line.indexOf("Y")))/divFactorX;
 					y = Float.valueOf(line.substring(line.indexOf("Y")+1, line.indexOf("D")))/divFactorY;
 					d = Integer.valueOf(line.substring(line.indexOf("D")+1, line.indexOf("D")+3));
-					//System.out.println(" X: "+x+" Y:"+y+" D:"+d);
+				
+					x += offsetX;
+					y += offsetY;
+					
+					if(debug)  System.out.println(" X: "+x+" Y:"+y+" D:"+d);
 					
 					if(d==1)
 					{
