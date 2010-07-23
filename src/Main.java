@@ -210,25 +210,24 @@ public class Main {
 			}
 
 			
+			//System.out.println(gerberGcode.getGCode());
+
+			BufferedWriter outfile;
+			
+			outfile = new BufferedWriter(new FileWriter(outputFilename));
+			outfile.write(gerberGcode.getGCode());
+			outfile.close();
+			
+						
+			System.out.println("GCode file generated succesfully !");
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		//System.out.println(gerberGcode.getGCode());
 		
-		BufferedWriter outfile;
-		try {
-			outfile = new BufferedWriter(new FileWriter(outputFilename));
-			outfile.write(gerberGcode.getGCode());
-			outfile.close();
-		} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-		}
 		
-		System.out.println("GCode file generated succesfully !");
 	}
 
 }
