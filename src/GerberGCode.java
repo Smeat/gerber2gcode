@@ -70,18 +70,20 @@ public class GerberGCode {
 		
 		int XYFeedrate = 1000;
 		int ZFeedrate = 70;
+		int moveFeedrate = 1500;
 
 		float drawingHeight = 1.8f;
 		float freemoveHeight = 3.8f;//1.7f;
 
 		
-		public GerberGCode(float penWidth, float drawingHeight, float freemoveHeight, int XYFeedrate, int ZFeedrate)
+		public GerberGCode(float penWidth, float drawingHeight, float freemoveHeight, int XYFeedrate, int ZFeedrate, int moveFeedrate)
 		{
 			this.penWidth = penWidth;
 			this.drawingHeight = drawingHeight;
 			this.freemoveHeight = freemoveHeight;
 			this.XYFeedrate = XYFeedrate;
 			this.ZFeedrate = ZFeedrate;
+			this.moveFeedrate = moveFeedrate;
 			
 			enableAbsolute();
 			
@@ -137,7 +139,7 @@ public class GerberGCode {
 		
 		public void addFeedForMove()
 		{
-			gcodestr +=  "G1 F"+XYFeedrate+"\n";
+		//	gcodestr +=  "G1 F"+XYFeedrate+"\n";
 		}
 		
 		public void enableDrawing()
@@ -269,11 +271,17 @@ public class GerberGCode {
 		
 		public void goTo(Cords p)
 		{
+			if(lastCords != null && p != null){
+				if(lastCords.equals(p)){
+					dawingOn = false; //FIXME: workardound
+					 return;
+				 }
+			}
 			gcodestr += ";GoTo\n";
 			
 			disableDrawing();
 			addFeedForMove();
-			gcodestr += "G1 X"+p.x+" Y"+p.y+" F2000\n";
+			gcodestr += "G1 X"+p.x+" Y"+p.y+" F" + moveFeedrate + "\n";
 	
 			lastCords = new Cords(p.x, p.y, false);
 		}

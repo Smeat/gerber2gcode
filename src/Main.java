@@ -41,13 +41,14 @@ public class Main {
 		
 
 		// Config
-		float penWidth = 0.7f;		
-		float offsetX=40;
-		float offsetY=40;
-		int XYFeedrate = 1000;
-		int ZFeedrate = 70;
+		float penWidth = 0.5f;		
+		float offsetX=-20;
+		float offsetY=-20;
+		int XYFeedrate = 60 * 60;
+		int moveFeedrate = 130 *60;
+		int ZFeedrate = 100;
 		float drawingHeight = 1.8f;
-		float freemoveHeight = 3.8f;//1.7f;
+		float freemoveHeight = 2.8f;//1.7f;
 		// Config end
 		
 		String outputFilename, inputFilename;
@@ -70,7 +71,7 @@ public class Main {
 		System.out.println("Drawing Height: " + drawingHeight + " mm");
 		System.out.println("Freemove Height: " + freemoveHeight + " mm\n");
 		
-		gerberGcode = new GerberGCode(penWidth, drawingHeight, freemoveHeight, XYFeedrate, ZFeedrate); 
+		gerberGcode = new GerberGCode(penWidth, drawingHeight, freemoveHeight, XYFeedrate, ZFeedrate, moveFeedrate); 
 		
 		// processing Gerber file
 		try {
@@ -81,6 +82,10 @@ public class Main {
 			while((line = in.readLine()) != null)
 			{
 				if(debug) System.out.println(line);
+				
+				if(line.startsWith("G01")){ //Remove G01 from line, since it can be omitted (?)
+					line = line.substring(3);
+				}
 				
 				if(line.startsWith("%FSLA"))
 				{
@@ -147,6 +152,14 @@ public class Main {
 				else
 				if(line.startsWith("G70"))
 				{
+					gerberGcode.setImperial();
+					inInch = true;
+					
+					offsetX = offsetX/25.4f;
+					offsetY = offsetY/25.4f;
+				}
+				else
+				if(line.startsWith("%MOIN*%")){
 					gerberGcode.setImperial();
 					inInch = true;
 					
