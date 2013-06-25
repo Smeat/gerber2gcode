@@ -13,6 +13,10 @@ Cords::Cords(float x, float y, bool inch) : _x(x), _y(y), _inInch(inch) {
 	}
 }
 
+Cords::Cords() {
+	
+}
+
 Cords::~Cords() {
 	// TODO Auto-generated destructor stub
 }

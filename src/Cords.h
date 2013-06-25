@@ -24,6 +24,14 @@ public:
 	void inchToMM();
 	float getLength() const;
 	float getDistance(const Cords& ob) const;
+	
+	float getX(){
+		return _x;
+	}
+	
+	float getY(){
+		return _y;
+	}
 
 
 
@@ -39,6 +47,11 @@ public:
 
 	bool operator==(const Cords& b) const{
 		return ((_x == b._x) && (_y == b._y));
+	}
+	
+	//Why do I need this function??
+	bool operator!=(const Cords&b) const{
+		return !(*this == b);
 	}
 
 	Cords& operator=(const Cords& b){
@@ -76,12 +89,27 @@ public:
 		return *this;
 	}
 
+	Cords& operator*=(const float b){
+		this->_x *= b;
+		this->_y *= b;
+
+		return *this;
+	}
+
 	friend Cords operator*(const Cords& a, const Cords& b){
 		Cords temp;
 		temp._x = a._x * b._x;
 		temp._y = a._y * b._y;
 		return temp;
 	}
+	
+	friend Cords operator*(const Cords& a, const float b){
+		Cords temp;
+		temp._x = a._x * b;
+		temp._y = a._y * b;
+		return temp;
+	}
+
 
 	friend Cords operator-(const Cords& a, const Cords& b){
 		Cords temp;
