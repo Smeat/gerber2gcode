@@ -1,8 +1,18 @@
-/*
- * GerberGCode.cpp
+/**
+ *  This file is part of gerber2gcode.
+ * 
+ *  gerber2gcode is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- *  Created on: 25.06.2013
- *      Author: smeat
+ *  gerber2gcode is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "GerberGCode.h"
@@ -53,7 +63,11 @@ GerberGCode::GerberGCode() {
 }
 
 GerberGCode::~GerberGCode() {
-	// TODO Auto-generated destructor stub
+	for(auto iter = _apertures.begin(); iter != _apertures.end(); ++iter){
+		if(*iter != NULL){
+			delete *iter;
+		}
+	}
 }
 
 void GerberGCode::enableAbsolute() {
@@ -75,20 +89,20 @@ void GerberGCode::setImperial() {
 
 void GerberGCode::selectAperture(int aperture) {
 	for(auto iter = _apertures.begin(); iter != _apertures.end(); ++iter){
-		if(iter->getNum() == aperture){
-			_curAperture = &(*iter); //I HATE THAT! Is there a better way?
+		if((*iter)->getNum() == aperture){
+			_curAperture = *iter;
 			break;
 		}
 	}
 }
 
 void GerberGCode::addCircleAperture(int apertureNum, float width) {
-	_apertures.push_back(Aperture(apertureNum, width, 'C', _inInch));
+	_apertures.push_back(new Aperture(apertureNum, width, 'C', _inInch));
 }
 
 void GerberGCode::addRectangleAperture(int apertureNum, float width,
 		float height) {
-	_apertures.push_back(Aperture(apertureNum, width, height, 'R', _inInch));
+	_apertures.push_back(new Aperture(apertureNum, width, height, 'R', _inInch));
 }
 
 void GerberGCode::enableDrawing() {
