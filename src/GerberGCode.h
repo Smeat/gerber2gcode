@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "Cords.h"
 
@@ -26,11 +27,15 @@ public:
 
 	virtual ~Aperture();
 
+
+	int getNum(){
+		return _num;
+	}
 };
 
 class GerberGCode {
 private:
-	std::string _gcodestr = "";
+	std::stringstream _gcodestr;
 	bool _dawingOn = true;
 	std::vector<Aperture> _apertures;
 	float _penWidth;
@@ -57,9 +62,8 @@ public:
 	void addRectangleAperture(int apertureNum, float width, float height);
 	void enableDrawing();
 	void disableDrawing();
-	void addLine(Cords& end);
 	void addLine(Cords& start, Cords& end);
-	void addLine(Cords& end, bool multiline);
+	void addLine(Cords& end, bool multiline = true);
 	void addLine(Cords& start, Cords& end, bool multiline);
 	void goTo(Cords& p);
 	void exposePoint(Cords& p);
