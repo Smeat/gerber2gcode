@@ -15,14 +15,16 @@
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GERBERGCODE_H_
-#define GERBERGCODE_H_
+#ifndef GerberGeometry_H_
+#define GerberGeometry_H_
 
 #include <string>
 #include <vector>
 #include <sstream>
 
 #include "Cords.h"
+#include "Line.h"
+#include "Util.h"
 
 class Aperture{
 private:
@@ -47,11 +49,12 @@ public:
 	}
 };
 
-class GerberGCode {
+class GerberGeometry {
 private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
 	std::vector<Aperture*> _apertures;
+	std::vector<Line*> _lines;
 	float _penWidth;
 	Aperture* _curAperture;
 	bool _inInch;
@@ -82,8 +85,8 @@ private:
 	 */
 	float _freemoveHeight;//1.7f;
 public:
-	GerberGCode();
-	virtual ~GerberGCode();
+	GerberGeometry();
+	virtual ~GerberGeometry();
 
 	/**
 	 * Enable absolute movement
@@ -137,4 +140,4 @@ public:
 	std::string getGCode();
 };
 
-#endif /* GERBERGCODE_H_ */
+#endif /* GerberGeometry_H_ */

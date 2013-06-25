@@ -15,7 +15,7 @@
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GerberGCode.h"
+#include "GerberGeometry.h"
 
 Aperture::Aperture(int num, float width, char type, bool inInch){
 	this->_num = num;
@@ -47,7 +47,7 @@ Aperture::~Aperture(){
 
 }
 
-GerberGCode::GerberGCode() {
+GerberGeometry::GerberGeometry() {
 	_drawingOn = true;
 	_curAperture = NULL;
 	_penWidth = 0.5;
@@ -62,32 +62,29 @@ GerberGCode::GerberGCode() {
 
 }
 
-GerberGCode::~GerberGCode() {
-	for(auto iter = _apertures.begin(); iter != _apertures.end(); ++iter){
-		if(*iter != NULL){
-			delete *iter;
-		}
-	}
+GerberGeometry::~GerberGeometry() {
+	deleteVector(&_apertures);
+	deleteVector(&_lines);
 }
 
-void GerberGCode::enableAbsolute() {
+void GerberGeometry::enableAbsolute() {
 	_gcodestr << "G90\n";
 }
 
-void GerberGCode::enableRelative() {
+void GerberGeometry::enableRelative() {
 	_gcodestr << "G91\n";
 }
 
-void GerberGCode::setMetric() {
+void GerberGeometry::setMetric() {
 	_gcodestr << "G21\n";
 }
 
-void GerberGCode::setImperial() {
+void GerberGeometry::setImperial() {
 	_inInch=true;
 	setMetric();
 }
 
-void GerberGCode::selectAperture(int aperture) {
+void GerberGeometry::selectAperture(int aperture) {
 	for(auto iter = _apertures.begin(); iter != _apertures.end(); ++iter){
 		if((*iter)->getNum() == aperture){
 			_curAperture = *iter;
@@ -96,30 +93,30 @@ void GerberGCode::selectAperture(int aperture) {
 	}
 }
 
-void GerberGCode::addCircleAperture(int apertureNum, float width) {
+void GerberGeometry::addCircleAperture(int apertureNum, float width) {
 	_apertures.push_back(new Aperture(apertureNum, width, 'C', _inInch));
 }
 
-void GerberGCode::addRectangleAperture(int apertureNum, float width,
+void GerberGeometry::addRectangleAperture(int apertureNum, float width,
 		float height) {
 	_apertures.push_back(new Aperture(apertureNum, width, height, 'R', _inInch));
 }
 
-void GerberGCode::enableDrawing() {
+void GerberGeometry::enableDrawing() {
 	if(!_drawingOn){
 		_gcodestr << "G1 Z" << _drawingHeight << " F" << _ZFeedrate << " \n";
 		_drawingOn = true;
 	}
 }
 
-void GerberGCode::disableDrawing() {
+void GerberGeometry::disableDrawing() {
 	if(_drawingOn){
 		_gcodestr << "G1 Z" << _freemoveHeight << " F" << _ZFeedrate << "\n";
 		_drawingOn = false;
 	}
 }
 
-void GerberGCode::addLine(Cords* start, Cords* end, bool multiline) {
+void GerberGeometry::addLine(Cords* start, Cords* end, bool multiline) {
 
 	Cords vec;
 
@@ -181,6 +178,7 @@ void GerberGCode::addLine(Cords* start, Cords* end, bool multiline) {
 		enableDrawing();				
 		_gcodestr << "G1 X" << end->getX() << " Y" << end->getY() << "  F" << _XYFeedrate << "\n";
 		_lastCords = Cords(end->getX(), end->getY(), false);
+		_lines.push_back(new Line(start, end));
 		
 		//disableDrawing();
 		
@@ -199,22 +197,22 @@ void GerberGCode::addLine(Cords* start, Cords* end, bool multiline) {
 
 }
 
-void GerberGCode::addLine(Cords* end, bool multiline) {
+void GerberGeometry::addLine(Cords* end, bool multiline) {
 	addLine(NULL, end, multiline);
 }
 
-void GerberGCode::goTo(Cords* p) {
+void GerberGeometry::goTo(Cords* p) {
 }
 
-void GerberGCode::exposePoint(Cords* p) {
+void GerberGeometry::exposePoint(Cords* p) {
 }
 
-void GerberGCode::createRec(Cords* p) {
+void GerberGeometry::createRec(Cords* p) {
 }
 
-void GerberGCode::createCircle(Cords* p) {
+void GerberGeometry::createCircle(Cords* p) {
 }
 
-std::string GerberGCode::getGCode() {
+std::string GerberGeometry::getGCode() {
 	return _gcodestr.str();
 }
