@@ -21,6 +21,11 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iostream>
+#include <cmath>
+
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Cords.h"
 #include "Line.h"
@@ -29,33 +34,38 @@
 class Aperture{
 private:
 	int _num;
-	float _width, _height;
+	double _width, _height;
 	char _type;
 
 public:
-	Aperture(int num, float width, char type, bool inInch);
+	Aperture(int num, double width, char type, bool inInch);
 
-	Aperture(int num, float width, float height, char type, bool inInch);
+	Aperture(int num, double width, double height, char type, bool inInch);
 
 	virtual ~Aperture();
 
 
-	int getNum(){
+	inline int getNum(){
 		return _num;
 	}
 	
-	int getWidth(){
+	inline double getWidth(){
 		return _width;
+	}
+
+	inline double getHeight(){
+		return _height;
 	}
 };
 
 class GerberGeometry {
+
 private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
 	std::vector<Aperture*> _apertures;
 	std::vector<Line*> _lines;
-	float _penWidth;
+	double _penWidth;
 	Aperture* _curAperture;
 	bool _inInch;
 	Cords _lastCords;
@@ -78,12 +88,12 @@ private:
 	/**
 	 * Height where pen can draw
 	 */
-	float _drawingHeight;
+	double _drawingHeight;
 	
 	/**
 	 * Height where pan cannot draw
 	 */
-	float _freemoveHeight;//1.7f;
+	double _freemoveHeight;//1.7f;
 public:
 	GerberGeometry();
 	virtual ~GerberGeometry();
@@ -114,8 +124,8 @@ public:
 	 * Select a specific aperture from the internal list
 	 */
 	void selectAperture(int aperture);
-	void addCircleAperture(int apertureNum, float width);
-	void addRectangleAperture(int apertureNum, float width, float height);
+	void addCircleAperture(int apertureNum, double width);
+	void addRectangleAperture(int apertureNum, double width, double height);
 	
 	/**
 	 * Move head low to enable drawing

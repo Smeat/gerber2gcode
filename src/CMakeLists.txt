@@ -1,8 +1,11 @@
 project(gerber2gcode)
 
-set(SRCS Cords.cpp GerberGeometry.cpp main.cpp Line.cpp GerberLoad.cpp)
-set(HDRS Cords.h GerberGeometry.h Line.h Util.h GerberLoad.h)
 
-SET(CMAKE_CXX_FLAGS "-std=c++0x" ${CMAKE_CXX_FLAGS})
+
+set(SRCS Util.cpp Cords.cpp GerberGeometry.cpp main.cpp Line.cpp GerberLoader.cpp )
+set(HDRS Util.h Cords.h GerberGeometry.h Line.h Util.h GerberLoader.h )
+
+
+SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -pedantic -ggdb -O0" ${CMAKE_CXX_FLAGS})
 
 add_executable(gerber2gcode ${HDRS} ${SRCS})

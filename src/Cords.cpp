@@ -17,18 +17,21 @@
 
 #include "Cords.h"
 
-Cords::Cords(float x, float y, bool inch) : _x(x), _y(y), _inInch(inch) {
+Cords::Cords(double x, double y, bool inch) : _x(x), _y(y), _inInch(inch) {
 	if(inch){
 		inchToMM();
 	}
 }
 
 Cords::Cords() {
-	
+	_inInch = false;
+	_x = 0;
+	_y = 0;
 }
 
 Cords::~Cords() {
-	// TODO Auto-generated destructor stub
+	//boost::weak_ptr<Cords> ptr (this);
+	//objects.find(ptr);
 }
 
 void Cords::inchToMM(){
@@ -39,11 +42,11 @@ void Cords::inchToMM(){
 		_inInch=false;
 	}
 }
-float Cords::getLength() const{
-	return (float) sqrt(pow(_x, 2)+pow(_y, 2));
+double Cords::getLength() const{
+	return (double) sqrt(pow(_x, 2)+pow(_y, 2));
 }
 
-float Cords::getDistance(const Cords& ob) const{
+double Cords::getDistance(const Cords& ob) const{
 	Cords b = ob;
 	b -= *this;
 

@@ -15,27 +15,41 @@
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GERBERLOAD_H_
-#define GERBERLOAD_H_
+#ifndef GERBERLOADER_H_
+#define GERBERLOADER_H_
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
+
+#include <cstdlib>
 
 #include "GerberGeometry.h"
+#include "FileLoader.h"
 
-class GerberLoad{
+#include "Util.h"
+
+#include <boost/algorithm/string.hpp>
+
+class GerberLoader : public FileLoader {
 private:
-	std::stringstream _content;
+	GerberGeometry _geo;//TODO: make generic
 	
+	std::string _formatX;
+	std::string _formatY;
+
+	bool _inInch;
+
+	double _offsetX, _offsetY;
+
 public:
-	GerberLoad();
-	virtual ~GerberLoad();
+	GerberLoader();
+	virtual ~GerberLoader();
 	
-	/**
-	 * Read entire file into Ram. I think we should have enough.
-	 */
-	bool readFile(std::string& file);
-	
+	bool readLine(std::string* line);
+
+	bool generateGeometry();
+
 };
 
 #endif

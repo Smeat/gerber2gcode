@@ -19,38 +19,34 @@
 #define CORDS_H_
 
 #include <cmath>
+//#include <boost/unordered_set.hpp>
+#include <boost/weak_ptr.hpp>
+
 
 class Cords {
 private:
-	float _x, _y;
+	double _x, _y;
 	bool _inInch;
+	//static boost::unordered_set<boost::weak_ptr<Cords> > objects;
 
 public:
-	Cords(float x, float y, bool inch);
+	Cords(double x, double y, bool inch);
 	Cords();
 	virtual ~Cords();
+public:
 
 	//TODO: make gcode in inch
 	void inchToMM();
-	float getLength() const;
-	float getDistance(const Cords& ob) const;
+	double getLength() const;
+	double getDistance(const Cords& ob) const;
 	
-	float getX(){
+	double getX(){
 		return _x;
 	}
 	
-	float getY(){
+	double getY(){
 		return _y;
 	}
-
-
-
-
-
-
-
-
-
 
 
 	//Operators
@@ -99,7 +95,7 @@ public:
 		return *this;
 	}
 
-	Cords& operator*=(const float b){
+	Cords& operator*=(const double b){
 		this->_x *= b;
 		this->_y *= b;
 
@@ -113,7 +109,7 @@ public:
 		return temp;
 	}
 	
-	friend Cords operator*(const Cords& a, const float b){
+	friend Cords operator*(const Cords& a, const double b){
 		Cords temp;
 		temp._x = a._x * b;
 		temp._y = a._y * b;
@@ -128,5 +124,8 @@ public:
 		return temp;
 	}
 };
+
+
+typedef boost::shared_ptr<Cords> Cords_ptr;
 
 #endif /* CORDS_H_ */

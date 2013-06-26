@@ -6,8 +6,17 @@
  */
 
 
+#include "GerberLoader.h"
+#include "test/TestCords.h"
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 int main(){
+	GerberLoader test;
 
+	test.openFile("test.gbr");
+
+	test.generateGeometry();/**/
 }

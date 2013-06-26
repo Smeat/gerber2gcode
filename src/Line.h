@@ -20,6 +20,8 @@
 
 #include "Cords.h"
 
+#include <boost/shared_ptr.hpp>
+
 class Line{
 private:
 	Cords _start, _end;
@@ -31,5 +33,7 @@ public:
 	virtual ~Line();
 	
 };
+
+typedef boost::shared_ptr<Line> Line_ptr;
 
 #endif
