@@ -66,8 +66,7 @@ GerberGeometry::GerberGeometry() {
 }
 
 GerberGeometry::~GerberGeometry() {
-	util::deleteVector(&_apertures);
-	util::deleteVector(&_lines);
+
 }
 
 void GerberGeometry::enableAbsolute() {
@@ -190,7 +189,7 @@ void GerberGeometry::addLine(Cords* start, Cords* end, bool multiline) {
 		_gcodestr << "G1 X" << end->getX() << " Y" << end->getY() << "  F" << _XYFeedrate << "\n";
 	//	std::cout << "G1 X" << end->getX() << " Y" << end->getY() << "  F" << _XYFeedrate << std::endl;
 		_lastCords = Cords(end->getX(), end->getY(), false);
-		_lines.push_back(new Line(start, end));
+		_lines.push_back(Line_ptr(new Line(start, end)));
 		
 		//disableDrawing();
 		

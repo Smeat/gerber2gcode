@@ -29,18 +29,6 @@ namespace util{
 typedef boost::tokenizer<boost::char_separator<char> >
    tokenizer;
 
-//FIXME: contains bugs ;)
-template <class T>
-void deleteVector(std::vector<T>* vec){
-	return;
-	for(auto iter = vec->begin(); iter != vec->end(); ++iter){
-		if(*iter != 0){
-			delete *iter;
-			vec->erase(iter);
-		}
-	}
-}
-
 void split(std::vector<std::string>* elems, const std::string& s, const char* delim);
 
 

@@ -64,7 +64,7 @@ private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
 	std::vector<Aperture*> _apertures;
-	std::vector<Line*> _lines;
+	std::vector<Line_ptr> _lines;
 	double _penWidth;
 	Aperture* _curAperture;
 	bool _inInch;
