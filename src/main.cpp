@@ -16,15 +16,22 @@
  */
 
 #include "GerberLoader.h"
+#include "GcodeGenerator.h"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 int main(){
-	GerberLoader test;
 
-	test.openFile("test.gbr");
+	GerberLoader gerb;
 
-	test.generateGeometry();/**/
+	gerb.openFile("test.gbr");
+	gerb.generateGeometry();
+
+	GcodeGenerator gcode;
+
+	gcode.generateGcode(gerb.getLines());
+	gcode.writeData("new.gcode");
+
 }

@@ -30,6 +30,7 @@
 #include "Cords.h"
 #include "Line.h"
 #include "Util.h"
+#include "Geometry.h"
 
 class Aperture{
 private:
@@ -58,68 +59,17 @@ public:
 	}
 };
 
-class GerberGeometry {
+class GerberGeometry : public Geometry{
 
 private:
-	std::stringstream _gcodestr;
-	bool _drawingOn;
 	std::vector<Aperture*> _apertures;
-	std::vector<Line_ptr> _lines;
-	double _penWidth;
 	Aperture* _curAperture;
-	bool _inInch;
 	Cords _lastCords;
 	
-	/**
-	 * @brief Feedrate for drawing X and Y moves (mm/min)
-	 */
-	int _XYFeedrate;
-	
-	/**
-	 * Feedrate for Z movement (mm/min)
-	 */
-	int _ZFeedrate;
-	
-	/**
-	 * Feedrate for non drawing X and Y moves (mm/min)
-	 */
-	int _moveFeedrate;
-
-	/**
-	 * Height where pen can draw
-	 */
-	double _drawingHeight;
-	
-	/**
-	 * Height where pan cannot draw
-	 */
-	double _freemoveHeight;//1.7f;
 public:
 	GerberGeometry();
 	virtual ~GerberGeometry();
 
-	/**
-	 * Enable absolute movement
-	 * @todo Move to extra class
-	 */
-	void enableAbsolute();
-	
-	/**
-	 * Enable relative movement
-	 * @todo Move to extra class
-	 */
-	void enableRelative();
-	
-	/**
-	 * Set units to metric 
-	 */
-	void setMetric();
-	
-	/**
-	 * Set units to imperial
-	 */
-	void setImperial();
-	
 	/**
 	 * Select a specific aperture from the internal list
 	 */
@@ -127,27 +77,17 @@ public:
 	void addCircleAperture(int apertureNum, double width);
 	void addRectangleAperture(int apertureNum, double width, double height);
 	
-	/**
-	 * Move head low to enable drawing
-	 */
-	void enableDrawing();
 	
-	/**
-	 * Move head high to disable drawing
-	 */
-	void disableDrawing();
+
 	void addLine(Cords* end, bool multiline = true);
 	void addLine(Cords* start, Cords* end, bool multiline = true);
 	
-	/**
-	 * Go to position without drawing
-	 * @param p Coordinates
-	 */
 	void goTo(Cords* p);
+
+
 	void exposePoint(Cords* p);
 	void createRec(Cords* p);
 	void createCircle(Cords* p);
-	std::string getGCode();
 };
 
 #endif /* GerberGeometry_H_ */

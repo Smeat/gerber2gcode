@@ -174,7 +174,5 @@ bool GerberLoader::generateGeometry() {
 
 	closeFile();
 
-	std::cout << _geo.getGCode() << std::endl;
-
 	return true;
 }

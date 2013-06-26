@@ -32,6 +32,14 @@ public:
 	Line();
 	virtual ~Line();
 	
+	Cords getStart(){
+		return _start;
+	}
+
+	Cords getEnd(){
+		return _end;
+	}
+
 };
 
 typedef boost::shared_ptr<Line> Line_ptr;

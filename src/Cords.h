@@ -30,7 +30,7 @@ private:
 	//static boost::unordered_set<boost::weak_ptr<Cords> > objects;
 
 public:
-	Cords(double x, double y, bool inch);
+	Cords(double x, double y, bool inch = false);
 	Cords();
 	virtual ~Cords();
 public:

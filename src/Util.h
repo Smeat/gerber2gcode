@@ -21,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 #include <boost/tokenizer.hpp>
 
@@ -30,6 +31,8 @@ typedef boost::tokenizer<boost::char_separator<char> >
    tokenizer;
 
 void split(std::vector<std::string>* elems, const std::string& s, const char* delim);
+
+void writeFile(const std::string& file, const std::string& data);
 
 
 }

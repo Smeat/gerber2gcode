@@ -1,6 +1,6 @@
 /**
  *  This file is part of gerber2gcode.
- * 
+ *
  *  gerber2gcode is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
@@ -15,44 +15,37 @@
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GERBERLOADER_H_
-#define GERBERLOADER_H_
+#ifndef GEOMETRY_H_
+#define GEOMETRY_H_
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include "Line.h"
 
-#include <cstdlib>
-
-#include "GerberGeometry.h"
-#include "FileLoader.h"
-
-#include "Util.h"
-
-#include <boost/algorithm/string/predicate.hpp>
-
-class GerberLoader : public FileLoader {
-private:
-	GerberGeometry _geo;
-
-	std::string _formatX;
-	std::string _formatY;
-
+class Geometry{
+protected:
+	std::vector<Line_ptr> _lines;
+	double _penWidth;
 	bool _inInch;
-
-	double _offsetX, _offsetY;
+	bool _absolute;
 
 public:
-	GerberLoader();
-	virtual ~GerberLoader();
+	Geometry(){
+		_penWidth = 0.5;
+		_absolute = true;
+		_inInch = false;
+	}
+	virtual ~Geometry(){}
 
-	bool generateGeometry();
-	std::vector<Line_ptr>* getLines(){ return _geo.getLines();}
+	virtual void addLine(Cords* end, bool multiline = true) = 0;
+	virtual void addLine(Cords* start, Cords* end, bool multiline = true) = 0;
+	virtual void createRec(Cords* p) = 0;
+	virtual void createCircle(Cords* p) = 0;
+	virtual std::vector<Line_ptr>* getLines() { return &_lines;}
 
-private:
-	bool readLine(std::string* line);
-
-
+	void enableRelative(){ _absolute = false;}
+	void enableAbsolute(){ _absolute = true; }
+	void setImperial() {_inInch=true;}
+	void setMetric() {_inInch = false;}
 };
 
-#endif
+
+#endif /* GEOMETRY_H_ */

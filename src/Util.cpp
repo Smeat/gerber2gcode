@@ -29,3 +29,11 @@ void util::split(std::vector<std::string>* elems, const std::string& s, const ch
 		 elems->push_back(token);
 	 }
 }
+
+void util::writeFile(const std::string& file, const std::string& data) {
+	std::ofstream ostream(file, std::ios::out);
+
+	ostream << data;
+
+	ostream.close();
+}
