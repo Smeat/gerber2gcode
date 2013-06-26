@@ -15,16 +15,17 @@
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GerberLoader.h"
+#include "Util.h"
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
-int main(){
-	GerberLoader test;
 
-	test.openFile("test.gbr");
+void util::split(std::vector<std::string>* elems, const std::string& s, const char* delim) {
+	boost::char_separator<char> sep(delim);
 
-	test.generateGeometry();/**/
+	 tokenizer tokens(s, sep);
+
+	 for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter){
+		 std::string token = *tok_iter;
+		 elems->push_back(token);
+	 }
 }
