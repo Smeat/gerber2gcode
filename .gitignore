@@ -1,3 +1,7 @@
 *.class
 *.gbr
 *.gcode
+bin/*
+.classpath
+.project
+.settings/*
