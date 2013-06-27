@@ -2,9 +2,16 @@ project(gerber2gcode)
 
 
 
-set(SRCS Util.cpp Cords.cpp GerberGeometry.cpp main.cpp Line.cpp GerberLoader.cpp GcodeGenerator.cpp)
-set(HDRS Util.h Cords.h GerberGeometry.h Line.h Util.h GerberLoader.h GcodeGenerator.h Geometry.h)
+FILE(GLOB_RECURSE HDRS *.h)
+ 
+#set(SRCS)
 
+FILE(GLOB_RECURSE SRCS *.cpp)
+
+file(GLOB_RECURSE to_remove CMakeCXXCompilerId.cpp)
+if(to_remove)
+	list(REMOVE_ITEM SRCS ${to_remove})
+endif(to_remove)
 
 SET(CMAKE_CXX_FLAGS "-std=c++0x -Wall -pedantic -ggdb -O0" ${CMAKE_CXX_FLAGS})
 

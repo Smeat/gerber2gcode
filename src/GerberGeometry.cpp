@@ -49,7 +49,6 @@ Aperture::~Aperture(){
 
 GerberGeometry::GerberGeometry() {
 	_curAperture = NULL;
-	_penWidth = 0.5;
 	_inInch = false;
 
 	enableAbsolute();
@@ -90,67 +89,7 @@ void GerberGeometry::addLine(Cords* start, Cords* end, bool multiline) {
 		start = new Cords(_lastCords); //FIXME: dirty workaround
 	}
 
-	int numberOfLines = _curAperture->getWidth()/_penWidth + 0.5;
-	//std::cout << _curAperture->getWidth() << " / " << _penWidth << " == " << numberOfLines << std::endl;
-	if(numberOfLines < 1 || multiline == false) numberOfLines = 1;
-		//std::cout << "Drawing "<<numberOfLines<< std::endl;
-
-	if(numberOfLines > 1)
-	{
-		double length, factor;
-		vec = Cords((end->getY()-start->getY())*(-1), end->getX()-start->getX(), false);
-		
-		
-		length = vec.getLength();
-		factor = _penWidth/length;
-		
-		//std::cout << " VEC X:"<<vec.getX()<<" Y: "<<vec.getY()<<" ("<<vec.getLength()<<")" << std::endl;
-		vec *= factor;
-		
-
-		// Cords offCord = vec.clone().mul(Math.round(numberOfLines/2f));
-		
-		Cords offCord = vec * ((1.0f/2.0f)*(numberOfLines/2.0f));
-		
-		//std::cout << " Off X:" <<offCord.getX()<<" Y: "<< offCord.getY() << " (" <<offCord.getLength() << ")" << std::endl;
-		
-		*start -= offCord;
-		*end -= offCord;		
-	}
-
-	for(int curLine=1; curLine <= numberOfLines; curLine++)
-	{
-		//std::cout << "Drawing Line " << curLine << std::endl;
-		
-		/*if(lastCords.distance(end) < lastCords.distance(start))
-		{
-			Cords tmp = end;
-			end = start;
-			start = tmp;
-			disableDrawing();
-		}*/
-		
-	//	std::cout << "Last: (" << _lastCords.getX() << ", " << _lastCords.getY() << ") Start: (" << start->getX() << ", " << start->getY() << ")" << std::endl;
-	//	std::cout << "Last != start? " << (_lastCords != (*start)) << std::endl;
-		if(_lastCords != (*start))
-		{
-			goTo(start);
-		}
-
-		_lastCords = Cords(end->getX(), end->getY(), false);
-		_lines.push_back(Line_ptr(new Line(start, end)));
-		
-		*start += vec;
-		*end += vec;
-	}			
-
-
-		
-	//start.x += penWidth;
-	//start.y += penWidth;
-	//end.x += penWidth;
-	//end.y += penWidth;
-		
+	_shapes.push_back(Line_ptr(new Line(start, end, _curAperture->getWidth(), true)));
 
 	if(delStart)
 		delete start;
@@ -172,7 +111,10 @@ void GerberGeometry::goTo(Cords* p) {
 }
 
 void GerberGeometry::exposePoint(Cords* p) {
-	createRec(p);
+	if(_curAperture->getType() == 'C')
+		createCircle(p);
+	else
+		createRec(p);
 }
 
 void GerberGeometry::createRec(Cords* p) {
@@ -211,19 +153,6 @@ void GerberGeometry::createRec(Cords* p) {
 }
 
 void GerberGeometry::createCircle(Cords* p) {
-	double y;//,x
-	//FIXME
-	for(double i=0; i < _curAperture->getWidth(); i+=0.3)
-	{
+		_shapes.push_back(Shape_ptr(new Circle(p, _curAperture->getWidth()/2)));
 
-		y = (double) (p->getY() + std::sqrt( std::pow(_curAperture->getWidth(), 2)  - std::pow(i,2) ));
-		addLine(0, new Cords(p->getX()+i, y, false));
-	}
-
-	for(double i=0; i < _curAperture->getWidth(); i+=0.3)
-	{
-
-		y = (double) (p->getY() - std::sqrt( std::pow(_curAperture->getWidth(), 2)  - std::pow(i,2) ));
-		addLine(0, new Cords(p->getX()+i, y, false));
-	}
 }

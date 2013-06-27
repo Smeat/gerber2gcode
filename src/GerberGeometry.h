@@ -31,6 +31,8 @@
 #include "Line.h"
 #include "Util.h"
 #include "Geometry.h"
+#include "Circle.h"
+#include "Shape.h"
 
 class Aperture{
 private:
@@ -56,6 +58,10 @@ public:
 
 	inline double getHeight(){
 		return _height;
+	}
+
+	inline char getType(){
+		return _type;
 	}
 };
 

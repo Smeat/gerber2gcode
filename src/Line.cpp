@@ -18,14 +18,18 @@
 #include "Line.h"
 
 
-Line::Line(Cords& start, Cords& end){
+Line::Line(Cords& start, Cords& end, double width, bool isRound){
 	_start = start;
 	_end = end;
+	_width = width;
+	_isRound = isRound;
 }
 
-Line::Line(Cords* start, Cords* end){
+Line::Line(Cords* start, Cords* end, double width, bool isRound){
 	_start = *start;
 	_end = *end;
+	_width = width;
+	_isRound = isRound;
 	
 }
 

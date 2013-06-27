@@ -19,16 +19,20 @@
 #define LINE_H_
 
 #include "Cords.h"
+#include "Shape.h"
 
 #include <boost/shared_ptr.hpp>
 
-class Line{
+class Line : public Shape{
 private:
 	Cords _start, _end;
+	double _width;
+	bool _isRound;
+
 	
 public:
-	Line(Cords& start, Cords& end);
-	Line(Cords* start, Cords* end);
+	Line(Cords& start, Cords& end, double width, bool isRound);
+	Line(Cords* start, Cords* end, double width, bool isRound);
 	Line();
 	virtual ~Line();
 	
@@ -40,6 +44,13 @@ public:
 		return _end;
 	}
 
+	bool isRound() const {
+		return _isRound;
+	}
+
+	double getWidth() const {
+		return _width;
+	}
 };
 
 typedef boost::shared_ptr<Line> Line_ptr;

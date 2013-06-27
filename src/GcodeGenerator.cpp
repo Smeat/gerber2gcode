@@ -27,13 +27,14 @@ GcodeGenerator::GcodeGenerator() {
 	// TODO Auto-generated constructor stub
 
 	_gcodestr.precision(6);
+	_penWidth = 0.1;
 
 	enableAbsolute();
 
 }
 
 GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
-		int drawingheight, int freemoveheight) {
+		double drawingheight, double freemoveheight, double penWidth) {
 	_XYFeedrate = xyfeedrade;
 	_ZFeedrate = zfeedrate;
 	_moveFeedrate = movefeedrate;
@@ -68,17 +69,14 @@ void GcodeGenerator::disableDrawing() {
 }
 
 void GcodeGenerator::goTo(Cords* p) {
-	if(p != 0){
-		if(_lastCords == *p){
-			 return;
-		 }
+	if(p == 0){
+		return;
 	}
 	_gcodestr << ";GoTo\n";
 
 	if(_drawingOn) disableDrawing();
 	_gcodestr << "G1 X" << p->getX() << " Y" << p->getY() << " F" << _moveFeedrate << "\n";
-
-	_lastCords = Cords(p->getX(), p->getY(), false);
+	enableDrawing();
 }
 
 void GcodeGenerator::enableAbsolute() {
@@ -102,29 +100,88 @@ std::string GcodeGenerator::getGCode() {
 	return _gcodestr.str();
 }
 
-void GcodeGenerator::generateGcode(std::vector<Line_ptr>* _lines) {
-	_lastCords = Cords(0,0, _inInch);
-
-	for(auto iter = _lines->begin(); iter != _lines->end(); ++iter){
+void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* _shapes) {
+	for(auto iter = _shapes->begin(); iter != _shapes->end(); ++iter){
 		draw(*iter);
 	}
 }
 
-void GcodeGenerator::draw(Line_ptr line){
-	draw(line->getStart(), line->getEnd());
+void GcodeGenerator::draw(Shape_ptr shape){
+	if(Line_ptr line = boost::dynamic_pointer_cast<Line>(shape)){ //TODO: is this the optimal way? no such thing as typeof?
 
-}
-
-void GcodeGenerator::draw(Cords start, Cords end) {
-	if(start != _lastCords){
-		goTo(&start);
+		drawLine(line);
 	}
-	if(!_drawingOn) enableDrawing();
+	else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(shape)){
+		drawCircle(circle);
+	}
 
-	_gcodestr << "G01 X" << end.getX() << " Y" << end.getY() << " F" << _XYFeedrate << "\n";
 }
+
+void GcodeGenerator::drawLine(Line_ptr line) {
+	Cords start = line->getStart();
+	Cords end = line->getEnd();
+	double width = line->getWidth();
+	int numberOfLines = width / _penWidth + 0.5;
+
+	drawCircle(Circle_ptr(new Circle(start, width/2)));
+	drawCircle(Circle_ptr(new Circle(end, width/2)));
+
+	std::cout << "Number of lines: " << numberOfLines << std::endl;
+
+	Cords vec;
+
+	if(numberOfLines > 1){
+		double length, factor;
+		vec = Cords((end.getY()-start.getY())*(-1), (end.getX()-start.getX())*(1), false);
+
+
+		length = vec.getLength();
+		factor = _penWidth/length;
+
+	//	std::cout << " VEC X:" << vec.getX() << " Y: " << vec.getY() << " (" << vec.getLength() <<")" << std::endl;
+
+		vec *= factor;
+
+		Cords offCord = vec * (numberOfLines/2.0);
+
+		start -=offCord;
+		end -=offCord;
+	}
+
+	for(int curLine=1; curLine <= numberOfLines; curLine++){
+		goTo(&start);
+
+		_gcodestr << "G01 X" << end.getX() << " Y" << end.getY() << " F" << _XYFeedrate << '\n';
+
+		start +=vec;
+		end += vec;
+
+
+	}
+
+
+}
+
+void GcodeGenerator::drawCircle(Circle_ptr circle) {
+	Cords mid = circle->getMid();
+	double radius = circle->getRadius();
+
+	_gcodestr << ";Generating circle with mid (" << mid.getX() << ", " << mid.getY() << ") and r " << radius << std::endl;
+
+
+	for(double i = 0; i < radius; i+=_penWidth){
+		Cords bottom = mid - Cords(0,i); ///Go to the bottom of the cirlce only reduce y
+		goTo(&bottom);
+		_gcodestr << "G02 J" << i << " F" << _XYFeedrate << "\n"; ///Drawing a circle upwards
+
+	}
+
+
+}
+
 
 bool GcodeGenerator::writeData(const std::string& fileName) {
 	util::writeFile(fileName, getGCode()); //TODO: move to base class
 	return true;
 }
+

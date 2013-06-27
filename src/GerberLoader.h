@@ -47,7 +47,7 @@ public:
 	virtual ~GerberLoader();
 
 	bool generateGeometry();
-	std::vector<Line_ptr>* getLines(){ return _geo.getLines();}
+	std::vector<Shape_ptr>* getLines(){ return _geo.getLines();}
 
 private:
 	bool readLine(std::string* line);

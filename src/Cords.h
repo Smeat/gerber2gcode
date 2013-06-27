@@ -88,6 +88,13 @@ public:
 		return *this;
 	}
 
+	Cords& operator-=(const double b){
+			this->_x -= b;
+			this->_y -= b;
+
+			return *this;
+	}
+
 	Cords& operator*=(const Cords&b){
 		this->_x *= b._x;
 		this->_y *= b._y;
@@ -121,6 +128,13 @@ public:
 		Cords temp;
 		temp._x = a._x - b._x;
 		temp._y = a._y - b._y;
+		return temp;
+	}
+
+	friend Cords operator-(const Cords& a, const double b){
+		Cords temp;
+		temp._x = a._x - b;
+		temp._y = a._y - b;
 		return temp;
 	}
 };

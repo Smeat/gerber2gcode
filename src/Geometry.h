@@ -22,14 +22,12 @@
 
 class Geometry{
 protected:
-	std::vector<Line_ptr> _lines;
-	double _penWidth;
+	std::vector<Shape_ptr> _shapes;
 	bool _inInch;
 	bool _absolute;
 
 public:
 	Geometry(){
-		_penWidth = 0.5;
 		_absolute = true;
 		_inInch = false;
 	}
@@ -39,7 +37,7 @@ public:
 	virtual void addLine(Cords* start, Cords* end, bool multiline = true) = 0;
 	virtual void createRec(Cords* p) = 0;
 	virtual void createCircle(Cords* p) = 0;
-	virtual std::vector<Line_ptr>* getLines() { return &_lines;}
+	virtual std::vector<Shape_ptr>* getLines() { return &_shapes;}
 
 	void enableRelative(){ _absolute = false;}
 	void enableAbsolute(){ _absolute = true; }

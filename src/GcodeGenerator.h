@@ -23,6 +23,7 @@
 #include "Cords.h"
 #include "Line.h"
 #include "Util.h"
+#include "Circle.h"
 
 class GcodeGenerator {
 protected:
@@ -31,7 +32,7 @@ protected:
 private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
-	Cords _lastCords;
+	double _penWidth;
 
 
 	/**
@@ -60,12 +61,12 @@ private:
 	double _freemoveHeight;//1.7f;
 public:
 	GcodeGenerator();
-	GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate, int drawingheight,  int freemoveheight);
+	GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate, double drawingheight,  double freemoveheight, double penWidth);
 	virtual ~GcodeGenerator();
 
 
 	std::string getGCode();
-	void generateGcode(std::vector<Line_ptr>* _lines);
+	void generateGcode(std::vector<Shape_ptr>* _shapes);
 
 	bool writeData(const std::string& fileName);
 
@@ -108,8 +109,9 @@ private:
 	 */
 	void setImperial();
 
-	void draw(Cords start, Cords end);
-	void draw(Line_ptr);
+	void draw(Shape_ptr);
+	void drawLine(Line_ptr);
+	void drawCircle(Circle_ptr);
 };
 
 #endif /* GCODEGENERATOR_H_ */
