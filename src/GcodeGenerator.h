@@ -60,6 +60,7 @@ private:
 	double _freemoveHeight;//1.7f;
 public:
 	GcodeGenerator();
+	GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate, int drawingheight,  int freemoveheight);
 	virtual ~GcodeGenerator();
 
 

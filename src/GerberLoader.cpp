@@ -73,7 +73,6 @@ bool GerberLoader::generateGeometry() {
 			apertureSize = splitline[1];
 
 			if(apertureType == "C")	{
-				//FIXME: !!!!!!
 				double size = atof(apertureSize.c_str());
 				_geo.addCircleAperture(atoi(apertureNum.c_str()), size);
 			}

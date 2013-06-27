@@ -32,6 +32,21 @@ GcodeGenerator::GcodeGenerator() {
 
 }
 
+GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
+		int drawingheight, int freemoveheight) {
+	_XYFeedrate = xyfeedrade;
+	_ZFeedrate = zfeedrate;
+	_moveFeedrate = movefeedrate;
+
+	_drawingHeight = drawingheight;
+	_freemoveHeight = freemoveheight;//1.7f;
+	// TODO Auto-generated constructor stub
+
+	_gcodestr.precision(6);
+
+	enableAbsolute();
+}
+
 GcodeGenerator::~GcodeGenerator() {
 	// TODO Auto-generated destructor stub
 }

@@ -134,18 +134,11 @@ void GerberGeometry::addLine(Cords* start, Cords* end, bool multiline) {
 	//	std::cout << "Last != start? " << (_lastCords != (*start)) << std::endl;
 		if(_lastCords != (*start))
 		{
-			//disableDrawing();
 			goTo(start);
-			//_gcodestr << "G1 X" << start->getX() << " Y" << start->getY() << " F" << _XYFeedrate <<"\n";
 		}
-		
-		//enableDrawing();
-		//_gcodestr << "G1 X" << end->getX() << " Y" << end->getY() << "  F" << _XYFeedrate << "\n";
-	//	std::cout << "G1 X" << end->getX() << " Y" << end->getY() << "  F" << _XYFeedrate << std::endl;
+
 		_lastCords = Cords(end->getX(), end->getY(), false);
 		_lines.push_back(Line_ptr(new Line(start, end)));
-		
-		//disableDrawing();
 		
 		*start += vec;
 		*end += vec;
@@ -185,8 +178,6 @@ void GerberGeometry::exposePoint(Cords* p) {
 void GerberGeometry::createRec(Cords* p) {
 	double startX, startY, endX, endY;
 
-	//_gcodestr << ";Creating Rect\n";
-
 	double recWidth = _curAperture->getWidth()/2.0f;
 	double recHeight = _curAperture->getHeight()/2.0f;
 
@@ -217,13 +208,6 @@ void GerberGeometry::createRec(Cords* p) {
 	//  ^     |
 	//  :_____|
 	addLine(new Cords(endX, endY, false), false);
-
-
-
-
-	//disableDrawing();
-	//_gcodestr << ";End Rect\n";
-
 }
 
 void GerberGeometry::createCircle(Cords* p) {
