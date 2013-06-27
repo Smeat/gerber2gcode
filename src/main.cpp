@@ -19,19 +19,59 @@
 #include "GcodeGenerator.h"
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <boost/program_options.hpp>
 
-int main(){
+int main(int argc, char** argv){
+
+	std::string input, output;
+	double penWidth, drawingHeight, moveHeight;
+	int xyFeedrate, moveFeedrate, zFeedrate;
+
+	namespace po = boost::program_options;
+
+	// Declare the supported options.
+	po::options_description desc("Allowed options");
+	desc.add_options()
+	    ("help,h", "produce help message")
+	    ("input-file,i", po::value<std::string>(&input), "set input-file")
+	    ("output-file,o", po::value<std::string>(&output), "set output-file")
+	    ("pen-width,w", po::value<double>(&penWidth)->default_value(0.1), "set pen-width")
+	    ("drawing-height", po::value<double>(&drawingHeight)->default_value(0), "set drawing height")
+		("move-height", po::value<double>(&moveHeight)->default_value(1), "set move height")
+		("draw-feedrate", po::value<int>(&xyFeedrate)->default_value(60*60), "set drawing feedrate (mm/min)")
+		("move-feedrate", po::value<int>(&moveFeedrate)->default_value(60*100), "set movement feedrate (mm/min)")
+		("draw-feedrate", po::value<int>(&zFeedrate)->default_value(70), "set z feedrate (mm/min)")
+		;
+
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::notify(vm);
+
+	if (vm.count("help")) {
+	    std::cout << desc << "\n";
+	    return 1;
+	}
+
+	if (!vm.count("input-file")) {
+		std::cout << "No input-file specified!\n";
+		std::cout << desc << "\n";
+		return 1;
+	}
+
+	if (!vm.count("output-file")) {
+		std::cout << "No output-file specified!\n";
+		std::cout << desc << "\n";
+		return 1;
+	}
 
 	GerberLoader gerb;
 
-	gerb.openFile("test.gbr");
+	gerb.openFile(input.c_str());
 	gerb.generateGeometry();
 
-	GcodeGenerator gcode;
+	GcodeGenerator gcode(xyFeedrate, zFeedrate, moveFeedrate, drawingHeight, moveHeight, penWidth);
 
 	gcode.generateGcode(gerb.getLines());
-	gcode.writeData("new.gcode");
+	gcode.writeData(output);
 
 }

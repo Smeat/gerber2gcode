@@ -126,7 +126,7 @@ void GcodeGenerator::drawLine(Line_ptr line) {
 	drawCircle(Circle_ptr(new Circle(start, width/2)));
 	drawCircle(Circle_ptr(new Circle(end, width/2)));
 
-	std::cout << "Number of lines: " << numberOfLines << std::endl;
+	//std::cout << "Number of lines: " << numberOfLines << std::endl;
 
 	Cords vec;
 
