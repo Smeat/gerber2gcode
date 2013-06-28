@@ -44,6 +44,14 @@ public:
 		return _end;
 	}
 
+	Cords* getStart_ptr(){
+		return &_start;
+	}
+
+	Cords* getEnd_ptr(){
+		return &_end;
+	}
+
 	bool isRound() const {
 		return _isRound;
 	}

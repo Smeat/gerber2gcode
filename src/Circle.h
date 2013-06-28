@@ -27,6 +27,10 @@ public:
 		return _mid;
 	}
 
+	Cords* getMid_ptr(){
+		return &_mid;
+	}
+
 	double getRadius(){
 		return _radius;
 	}

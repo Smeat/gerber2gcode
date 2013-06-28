@@ -19,6 +19,7 @@
 #define GCODEGENERATOR_H_
 
 #include <sstream>
+#include <cmath>
 
 #include "Cords.h"
 #include "Line.h"
@@ -89,7 +90,7 @@ public:
 
 
 	std::string getGCode();
-	void generateGcode(std::vector<Shape_ptr>* _shapes);
+	void generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX = false, bool mirrorY = true);
 
 	bool writeData(const std::string& fileName);
 
@@ -141,6 +142,11 @@ private:
 	Shape_ptr getNearestShape(std::vector<Shape_ptr>* shapes, Cords point, bool deleteElement = true);
 	double minDistanceTo(Shape_ptr shape, Cords point);
 	Cords getCirclePos(Cords mid, double radius, double gegree);
+
+	void mirrorYAxis(std::vector<Shape_ptr>* shapes);
+	void mirrorXAxis(std::vector<Shape_ptr>* shapes);
+	void mirrorXAxis(Cords* cord, double max, double min);
+	void mirrorYAxis(Cords* cord, double max, double min);
 };
 
 #endif /* GCODEGENERATOR_H_ */

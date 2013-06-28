@@ -117,8 +117,14 @@ std::string GcodeGenerator::getGCode() {
 	return _gcodestr.str();
 }
 
-void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes) {
-	enableAbsolute();
+void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX, bool mirrorY) {
+
+	if(mirrorX){
+		mirrorXAxis(shapes);
+	}
+	if(mirrorY){
+		mirrorYAxis(shapes);
+	}
 	_gcodestr << ";-----Config-----\n"
 			";XYFeedrate: " << _XYFeedrate << "\n"
 			";moveFeedrate: " << _moveFeedrate << "\n"
@@ -126,6 +132,8 @@ void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes) {
 			";zHeight: " << _freemoveHeight << "\n"
 			";Draw Height: " << _drawingHeight << "\n"
 			";------------\n";
+
+	enableAbsolute();
 
 
 #ifdef OPTIMIZED
@@ -293,4 +301,89 @@ Cords GcodeGenerator::getCirclePos(Cords mid, double radius, double gegree) {
 	double y = mid.getY() + radius * sin(gegree * M_PI /180.0);
 
 	return Cords(x,y);
+}
+
+//TODO: O(n^2) is bad. merge mirrorX and mirrorY
+void GcodeGenerator::mirrorYAxis(std::vector<Shape_ptr>* shapes) {
+	double maxY = 1;
+	double minY = 1000;
+
+	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
+		if(Line_ptr line = boost::dynamic_pointer_cast<Line>(*iter)){
+			double startY = line->getEnd().getY();
+			double endY = line->getStart().getY();
+			double localMin = (startY < endY) ? startY : endY;
+			double localMax = (startY > endY) ? startY : endY;
+
+			maxY = (localMax > maxY) ? localMax : maxY;
+			minY = (localMin < minY) ? localMin : minY;
+		}
+		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
+			double localMin = (getCirclePos(circle->getMid(), circle->getRadius(), 180)).getY(); //most right
+			double localMax = (getCirclePos(circle->getMid(), circle->getRadius(), 0)).getY(); //Most left
+
+			maxY = (localMax > maxY) ? localMax : maxY;
+			minY = (localMin < minY) ? localMin : minY;
+		}
+	}
+
+	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
+		if(Line_ptr line = boost::dynamic_pointer_cast<Line>(*iter)){
+			mirrorYAxis(line->getStart_ptr(), maxY, minY);
+			mirrorYAxis(line->getEnd_ptr(), maxY, minY);
+		}
+		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
+			mirrorYAxis(circle->getMid_ptr(), maxY, minY);
+		}
+	}
+}
+
+void GcodeGenerator::mirrorXAxis(std::vector<Shape_ptr>* shapes) {
+	double maxX = 1;
+	double minX = 1000;
+
+	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
+		if(Line_ptr line = boost::dynamic_pointer_cast<Line>(*iter)){
+			double startX = line->getEnd().getX();
+			double endX = line->getStart().getX();
+			double localMin = (startX < endX) ? startX : endX;
+			double localMax = (startX > endX) ? startX : endX;
+
+			maxX = (localMax > maxX) ? localMax : maxX;
+			minX = (localMin < minX) ? localMin : minX;
+		}
+		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
+			double localMin = (getCirclePos(circle->getMid(), circle->getRadius(), 180)).getX(); //most right
+			double localMax = (getCirclePos(circle->getMid(), circle->getRadius(), 0)).getX(); //Most left
+
+			maxX = (localMax > maxX) ? localMax : maxX;
+			minX = (localMin < minX) ? localMin : minX;
+		}
+	}
+
+	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
+		if(Line_ptr line = boost::dynamic_pointer_cast<Line>(*iter)){
+			mirrorXAxis(line->getStart_ptr(), maxX, minX);
+			mirrorXAxis(line->getEnd_ptr(), maxX, minX);
+		}
+		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
+			mirrorXAxis(circle->getMid_ptr(), maxX, minX);
+		}
+	}
+}
+
+void GcodeGenerator::mirrorXAxis(Cords* cord, double max, double min) {
+	double x = cord->getX();
+
+	double newX = fabs(x - (max+min));
+
+	cord->setX(newX);
+}
+
+void GcodeGenerator::mirrorYAxis(Cords* cord, double max, double min) {
+	double y = cord->getY();
+
+	double newY = fabs(y - (max+min));
+
+	cord->setY(newY);
 }
