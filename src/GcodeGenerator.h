@@ -25,6 +25,22 @@
 #include "Util.h"
 #include "Circle.h"
 
+struct Statistics{
+	uint64_t lines;
+	uint64_t circles;
+	uint64_t moves;
+	uint64_t zMoves;
+	uint64_t distance;
+
+	Statistics(){
+		circles = 0;
+		lines = 0;
+		moves = 0;
+		zMoves = 0;
+		distance = 0;
+	}
+};
+
 class GcodeGenerator {
 protected:
 	bool _inInch;
@@ -33,6 +49,12 @@ private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
 	double _penWidth;
+	Cords _lastPos;
+
+	Statistics _stats;
+	std::vector<Shape_ptr> _drawn;
+
+
 
 
 	/**
@@ -112,6 +134,11 @@ private:
 	void draw(Shape_ptr);
 	void drawLine(Line_ptr);
 	void drawCircle(Circle_ptr);
+
+	void G01(Cords start, Cords end);
+
+	Shape_ptr getNearestShape(std::vector<Shape_ptr>* shapes, Cords point, bool deleteElement = true);
+	double minDistanceTo(Shape_ptr shape, Cords point);
 };
 
 #endif /* GCODEGENERATOR_H_ */

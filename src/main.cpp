@@ -35,9 +35,9 @@ int main(int argc, char** argv){
 	    ("help,h", "produce help message")
 	    ("input-file,i", po::value<std::string>(&input), "set input-file")
 	    ("output-file,o", po::value<std::string>(&output), "set output-file")
-	    ("pen-width,w", po::value<double>(&penWidth)->default_value(0.1), "set pen-width")
-	    ("drawing-height", po::value<double>(&drawingHeight)->default_value(0), "set drawing height")
-		("move-height", po::value<double>(&moveHeight)->default_value(1), "set move height")
+	    ("pen-width,w", po::value<double>(&penWidth)->default_value(0.5), "set pen-width")
+	    ("drawing-height", po::value<double>(&drawingHeight)->default_value(2), "set drawing height")
+		("move-height", po::value<double>(&moveHeight)->default_value(3), "set move height")
 		("draw-feedrate", po::value<int>(&xyFeedrate)->default_value(60*60), "set drawing feedrate (mm/min)")
 		("move-feedrate", po::value<int>(&moveFeedrate)->default_value(60*100), "set movement feedrate (mm/min)")
 		("draw-feedrate", po::value<int>(&zFeedrate)->default_value(70), "set z feedrate (mm/min)")
@@ -62,7 +62,7 @@ int main(int argc, char** argv){
 		std::cout << "No output-file specified!\n";
 		std::cout << desc << "\n";
 		return 1;
-	}
+	}/**/
 
 	GerberLoader gerb;
 
@@ -70,6 +70,8 @@ int main(int argc, char** argv){
 	gerb.generateGeometry();
 
 	GcodeGenerator gcode(xyFeedrate, zFeedrate, moveFeedrate, drawingHeight, moveHeight, penWidth);
+
+	//GcodeGenerator gcode;
 
 	gcode.generateGcode(gerb.getLines());
 	gcode.writeData(output);
