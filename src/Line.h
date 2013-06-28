@@ -51,6 +51,15 @@ public:
 	double getWidth() const {
 		return _width;
 	}
+
+	/**
+	 *  Swap start and end Position. Shouldn't affect Result.
+	 */
+	void swapCords(){
+		Cords temp = _start;
+		_start = _end;
+		_end = temp;
+	}
 };
 
 typedef boost::shared_ptr<Line> Line_ptr;

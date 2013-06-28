@@ -78,7 +78,7 @@ void GcodeGenerator::goTo(Cords* p) {
 	}
 	_gcodestr << ";GoTo\n";
 
-	if(_drawingOn) disableDrawing();
+	if(_drawingOn && (_lastPos.getDistance(*p) <= _penWidth)) disableDrawing();
 	_gcodestr << "G1 X" << p->getX() << " Y" << p->getY() << " F" << _moveFeedrate << "\n";
 	_stats.distance += _lastPos.getDistance(*p);
 	_lastPos = *p;
@@ -155,7 +155,10 @@ double GcodeGenerator::minDistanceTo(Shape_ptr shape, Cords point){
 		min = line->getStart().getDistance(point);
 		min2 = line->getEnd().getDistance(point);
 
-		min = (min < min2) ? min : min2;
+		if(min2 < min){
+			min = min2;
+			line->swapCords();
+		}
 	}
 	else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(shape)){
 		min = (circle->getMid() - Cords(0,circle->getRadius())).getDistance(point); //bottom
