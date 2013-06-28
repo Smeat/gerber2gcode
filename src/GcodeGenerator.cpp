@@ -17,6 +17,8 @@
 
 #include "GcodeGenerator.h"
 
+#define OPTIMIZED
+
 GcodeGenerator::GcodeGenerator() {
 	_XYFeedrate = 60 * 60;
 	_ZFeedrate = 100;
@@ -28,13 +30,16 @@ GcodeGenerator::GcodeGenerator() {
 
 	_gcodestr.precision(6);
 	_penWidth = 0.5;
-
-	enableAbsolute();
+	_drawingOn = false;
+	_absolute = true;
+	_inInch = false;
+	_arcSupport = false;
 
 }
 
 GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
-		double drawingheight, double freemoveheight, double penWidth) {
+		double drawingheight, double freemoveheight, double penWidth, bool arcSupport) {
+	_drawingOn = false;
 	_XYFeedrate = xyfeedrade;
 	_ZFeedrate = zfeedrate;
 	_moveFeedrate = movefeedrate;
@@ -44,8 +49,9 @@ GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
 
 	_gcodestr.precision(6);
 	_penWidth = penWidth;
-
-	enableAbsolute();
+	_absolute = true;
+	_inInch = false;
+	_arcSupport = false;
 }
 
 GcodeGenerator::~GcodeGenerator() {
@@ -76,9 +82,12 @@ void GcodeGenerator::goTo(Cords* p) {
 	if(p == 0 || _lastPos == *p){
 		return;
 	}
-	_gcodestr << ";GoTo\n";
+	_gcodestr << ";GoTo Distance: " <<_lastPos.getDistance(*p) << "\n";
 
-	if(_drawingOn && (_lastPos.getDistance(*p) <= _penWidth)) disableDrawing();
+
+	if(_lastPos.getDistance(*p) > _penWidth*1.1)
+		disableDrawing();
+
 	_gcodestr << "G1 X" << p->getX() << " Y" << p->getY() << " F" << _moveFeedrate << "\n";
 	_stats.distance += _lastPos.getDistance(*p);
 	_lastPos = *p;
@@ -109,20 +118,31 @@ std::string GcodeGenerator::getGCode() {
 }
 
 void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes) {
+	enableAbsolute();
+	_gcodestr << ";-----Config-----\n"
+			";XYFeedrate: " << _XYFeedrate << "\n"
+			";moveFeedrate: " << _moveFeedrate << "\n"
+			";zFeedrate: " << _ZFeedrate << "\n"
+			";zHeight: " << _freemoveHeight << "\n"
+			";Draw Height: " << _drawingHeight << "\n"
+			";------------\n";
 
+
+#ifdef OPTIMIZED
 	while (shapes->size() != 0){
 		Shape_ptr drawing = getNearestShape(shapes, _lastPos);
 		draw(drawing);
 	}
 
+#else
 
 
-/*
 	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
 		draw(*iter);
-		_drawn.push_back(*iter);
-		shapes->erase(iter);
-	}*/
+	//	_drawn.push_back(*iter);
+		//shapes->erase(iter);
+	}
+#endif
 
 	_gcodestr << ";------Stats-------\n;Lines Drawn: " << _stats.lines << "\n;Circles Drawn: " << _stats.circles << "\n;Moves: " << _stats.moves << "\n;zMoves: " << _stats.zMoves << "\n;Total distance: " << _stats.distance << "mm\n";
 }
@@ -168,7 +188,6 @@ double GcodeGenerator::minDistanceTo(Shape_ptr shape, Cords point){
 }
 void GcodeGenerator::draw(Shape_ptr shape){
 	if(Line_ptr line = boost::dynamic_pointer_cast<Line>(shape)){ //TODO: is this the optimal way? no such thing as typeof?
-
 		drawLine(line);
 	}
 	else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(shape)){
@@ -216,7 +235,6 @@ void GcodeGenerator::drawLine(Line_ptr line) {
 			G01(start, end);
 		}
 
-
 		start +=vec;
 		end += vec;
 
@@ -232,14 +250,22 @@ void GcodeGenerator::drawCircle(Circle_ptr circle) {
 	_gcodestr << ";Generating circle with mid (" << mid.getX() << ", " << mid.getY() << ") and r " << radius << std::endl;
 
 
-	for(double i = 0; i < radius; i+=_penWidth){
-		Cords bottom = mid - Cords(0,i); ///Go to the bottom of the cirlce only reduce y
-		goTo(&bottom);
-		_gcodestr << "G02 J" << i << " F" << _XYFeedrate << "\n"; ///Drawing a circle upwards
+	for(double i = _penWidth; i < radius; i+=_penWidth){
+		Cords bottom = getCirclePos(mid, i, 270); ///Go to the bottom of the circle
+
+		if(_arcSupport){
+			goTo(&bottom);
+			_gcodestr << "G02 J" << i << " F" << _XYFeedrate << "\n"; ///Drawing a circle upwards
+			_stats.distance += 2 * M_PI * i;
+		}
+		else {
+			for(double j = 0; j < 360; j+= 360/6){
+				G01(_lastPos, getCirclePos(mid, i, j));
+			}
+		}
 		_lastPos = bottom;
 
 		++_stats.circles;
-		_stats.distance += 2 * M_PI * i;
 
 	}
 
@@ -260,4 +286,11 @@ void GcodeGenerator::G01(Cords start, Cords end) {
 	_lastPos = end;
 
 	++_stats.lines;
+}
+
+Cords GcodeGenerator::getCirclePos(Cords mid, double radius, double gegree) {
+	double x = mid.getX() + radius * cos(gegree * M_PI /180.0);
+	double y = mid.getY() + radius * sin(gegree * M_PI /180.0);
+
+	return Cords(x,y);
 }

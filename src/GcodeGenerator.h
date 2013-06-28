@@ -49,6 +49,7 @@ private:
 	std::stringstream _gcodestr;
 	bool _drawingOn;
 	double _penWidth;
+	bool _arcSupport;
 	Cords _lastPos;
 
 	Statistics _stats;
@@ -83,7 +84,7 @@ private:
 	double _freemoveHeight;//1.7f;
 public:
 	GcodeGenerator();
-	GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate, double drawingheight,  double freemoveheight, double penWidth);
+	GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate, double drawingheight,  double freemoveheight, double penWidth, bool arcSupport = false);
 	virtual ~GcodeGenerator();
 
 
@@ -139,6 +140,7 @@ private:
 
 	Shape_ptr getNearestShape(std::vector<Shape_ptr>* shapes, Cords point, bool deleteElement = true);
 	double minDistanceTo(Shape_ptr shape, Cords point);
+	Cords getCirclePos(Cords mid, double radius, double gegree);
 };
 
 #endif /* GCODEGENERATOR_H_ */

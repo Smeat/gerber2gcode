@@ -34,7 +34,8 @@ Line::Line(Cords* start, Cords* end, double width, bool isRound){
 }
 
 Line::Line(){
-	
+	_width = 0;
+	_isRound = true;
 }
 
 Line::~Line(){

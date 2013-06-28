@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 		("move-height", po::value<double>(&moveHeight)->default_value(3), "set move height")
 		("draw-feedrate", po::value<int>(&xyFeedrate)->default_value(60*60), "set drawing feedrate (mm/min)")
 		("move-feedrate", po::value<int>(&moveFeedrate)->default_value(60*100), "set movement feedrate (mm/min)")
-		("draw-feedrate", po::value<int>(&zFeedrate)->default_value(70), "set z feedrate (mm/min)")
+		("z-feedrate", po::value<int>(&zFeedrate)->default_value(70), "set z feedrate (mm/min)")
 		;
 
 	po::variables_map vm;
