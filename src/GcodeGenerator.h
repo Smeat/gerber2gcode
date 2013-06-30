@@ -90,7 +90,7 @@ public:
 
 
 	std::string getGCode();
-	void generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX = false, bool mirrorY = true);
+	void generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX = true, bool mirrorY = false);
 
 	bool writeData(const std::string& fileName);
 

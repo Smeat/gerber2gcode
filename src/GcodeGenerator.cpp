@@ -85,7 +85,7 @@ void GcodeGenerator::goTo(Cords* p) {
 	_gcodestr << ";GoTo Distance: " <<_lastPos.getDistance(*p) << "\n";
 
 
-	if(_lastPos.getDistance(*p) > _penWidth*1.1)
+	if(_lastPos.getDistance(*p) > _penWidth*1.005)
 		disableDrawing();
 
 	_gcodestr << "G1 X" << p->getX() << " Y" << p->getY() << " F" << _moveFeedrate << "\n";
@@ -254,8 +254,6 @@ void GcodeGenerator::drawLine(Line_ptr line) {
 void GcodeGenerator::drawCircle(Circle_ptr circle) {
 	Cords mid = circle->getMid();
 	double radius = circle->getRadius();
-
-	_gcodestr << ";Generating circle with mid (" << mid.getX() << ", " << mid.getY() << ") and r " << radius << std::endl;
 
 
 	for(double i = _penWidth; i < radius; i+=_penWidth){
