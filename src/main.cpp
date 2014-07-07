@@ -69,7 +69,7 @@ int main(int argc, char** argv){
 	gerb.openFile(input.c_str());
 	gerb.generateGeometry();
 
-	GcodeGenerator gcode(xyFeedrate, zFeedrate, moveFeedrate, drawingHeight, moveHeight, penWidth);
+	GcodeGenerator gcode(xyFeedrate, zFeedrate, moveFeedrate, drawingHeight, moveHeight, penWidth, false);
 
 	//GcodeGenerator gcode;
 

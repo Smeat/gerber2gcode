@@ -45,6 +45,11 @@ bool GerberLoader::readLine(std::string* line) {
 bool GerberLoader::generateGeometry() {
 	std::string line;
 
+	//Statistics for debugging
+	long lines = 0;
+	long circles = 0;
+	long moves = 0;
+
 	while(readLine(&line)){
 
 		//Remove G01
@@ -52,6 +57,7 @@ bool GerberLoader::generateGeometry() {
 			line = line.substr(3, line.length());
 		}
 
+		// Get X and Y dimensions
 		if(boost::starts_with(line, "%FSLA")){
 			_formatX = line.substr(6, 8);
 			_formatY = line.substr(9, 11);
@@ -148,16 +154,19 @@ bool GerberLoader::generateGeometry() {
 			if(d==1)
 			{
 				_geo.addLine(new Cords(x, y, _inInch));
+				++lines;
 			}
 			else
 			if(d==2)
 			{
 				_geo.goTo(new Cords(x, y, _inInch));
+				++moves;
 			}
 			else
 			if(d==3)
 			{
 				_geo.exposePoint(new Cords(x, y, _inInch));
+				++circles;
 			}
 		}
 		else
@@ -168,10 +177,15 @@ bool GerberLoader::generateGeometry() {
 			aperture = atoi(line.substr(1, 3).c_str());
 			_geo.selectAperture(aperture);
 		}
+		else{
+			std::cout << "Ignoring line: " << line << std::endl;
+		}
 
 	}
 
 	closeFile();
+
+	std::cout << "Loaded file with " << lines << " lines, " << circles << " circles and " << moves << " moves!" << std::endl;
 
 	return true;
 }

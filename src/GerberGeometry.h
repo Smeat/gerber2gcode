@@ -28,11 +28,11 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Cords.h"
-#include "Line.h"
+#include "shapes/Line.h"
 #include "Util.h"
 #include "Geometry.h"
-#include "Circle.h"
-#include "Shape.h"
+#include "shapes/Circle.h"
+#include "shapes/Shape.h"
 
 class Aperture{
 private:

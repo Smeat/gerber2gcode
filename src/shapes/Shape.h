@@ -14,6 +14,9 @@ class Shape{
 public:
 	Shape(){}
 	virtual ~Shape(){}
+
+
+	//Shape* operator+(const Shape& shape) = 0;
 };
 
 typedef boost::shared_ptr<Shape> Shape_ptr;

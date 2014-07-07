@@ -22,9 +22,10 @@
 #include <cmath>
 
 #include "Cords.h"
-#include "Line.h"
+#include "shapes/Line.h"
 #include "Util.h"
-#include "Circle.h"
+#include "shapes/Circle.h"
+#include "image/SVGExport.h"
 
 struct Statistics{
 	uint64_t lines;
@@ -52,6 +53,7 @@ private:
 	double _penWidth;
 	bool _arcSupport;
 	Cords _lastPos;
+	SVGExport *_export;
 
 	Statistics _stats;
 	std::vector<Shape_ptr> _drawn;
@@ -147,6 +149,8 @@ private:
 	void mirrorXAxis(std::vector<Shape_ptr>* shapes);
 	void mirrorXAxis(Cords* cord, double max, double min);
 	void mirrorYAxis(Cords* cord, double max, double min);
+
+	//void zeroShapes(std::vector<Shape_ptr>* shapes);
 };
 
 #endif /* GCODEGENERATOR_H_ */

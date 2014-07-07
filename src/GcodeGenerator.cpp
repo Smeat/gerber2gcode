@@ -34,7 +34,6 @@ GcodeGenerator::GcodeGenerator() {
 	_absolute = true;
 	_inInch = false;
 	_arcSupport = false;
-
 }
 
 GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
@@ -51,7 +50,7 @@ GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
 	_penWidth = penWidth;
 	_absolute = true;
 	_inInch = false;
-	_arcSupport = false;
+	_arcSupport = arcSupport;
 }
 
 GcodeGenerator::~GcodeGenerator() {
@@ -118,6 +117,10 @@ std::string GcodeGenerator::getGCode() {
 }
 
 void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX, bool mirrorY) {
+
+	_export = new SVGExport("test.svg", 100, 100);
+
+	//zeroShapes(shapes);
 
 	if(mirrorX){
 		mirrorXAxis(shapes);
@@ -281,6 +284,7 @@ void GcodeGenerator::drawCircle(Circle_ptr circle) {
 
 bool GcodeGenerator::writeData(const std::string& fileName) {
 	util::writeFile(fileName, getGCode()); //TODO: move to base class
+	_export->write();
 	return true;
 }
 
@@ -291,6 +295,8 @@ void GcodeGenerator::G01(Cords start, Cords end) {
 	_stats.distance += _lastPos.getDistance(end);
 	_lastPos = end;
 
+	_export->addLine(start, end, _penWidth);
+
 	++_stats.lines;
 }
 
@@ -300,6 +306,21 @@ Cords GcodeGenerator::getCirclePos(Cords mid, double radius, double gegree) {
 
 	return Cords(x,y);
 }
+
+/*void GcodeGenerator::zeroShapes(std::vector<Shape_ptr>* shapes){
+	double minX = 0;
+	double minY = 0;
+
+	for(auto iter = shapes->begin(); iter != shapes->end(); ++iter){
+		if(Line_ptr line = boost::dynamic_pointer_cast<Line>(*iter)){
+			if(line->_start.getX() < minX) minX = line->_start.getX();
+			if(line->_end.getX() < minX) minX = line->_end.getX();
+			if(line->_start.getY() < minY) minY = line->_start.getY();
+			if(line->_end.getY() < minY) minY = line->_end.getY();
+		}
+	}
+
+}*/
 
 //TODO: O(n^2) is bad. merge mirrorX and mirrorY
 void GcodeGenerator::mirrorYAxis(std::vector<Shape_ptr>* shapes) {

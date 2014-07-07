@@ -14,36 +14,44 @@
  *  You should have received a copy of the GNU General Public License
  *  along with gerber2gcode.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "../Cords.h"
 
-#ifndef GEOMETRY_H_
-#define GEOMETRY_H_
 
-#include "shapes/Line.h"
 
-class Geometry{
-protected:
-	std::vector<Shape_ptr> _shapes;
-	bool _inInch;
-	bool _absolute;
+void testOperators(){
+	Cords a(1.45, 0.002, false);
+	Cords b(3.124, 0.02, false);
+	Cords* p = new Cords(1.25, 3.5, false);
 
-public:
-	Geometry(){
-		_absolute = true;
-		_inInch = false;
+	if(a == b){
+		std::cerr << "ERROR a == b!!!" << std::endl;
 	}
-	virtual ~Geometry(){}
+	if(a != b){
+		std::cout << "OK a != b" << std::endl;
+	}
 
-	virtual void addLine(Cords* end, bool multiline = true) = 0;
-	virtual void addLine(Cords* start, Cords* end, bool multiline = true) = 0;
-	virtual void createRec(Cords* p) = 0;
-	virtual void createCircle(Cords* p) = 0;
-	virtual std::vector<Shape_ptr>* getLines() { return &_shapes;}
+	if(a != a){
+		std::cerr << "ERROR a != a!!!!" << std::endl;
+	}
 
-	void enableRelative(){ _absolute = false;}
-	void enableAbsolute(){ _absolute = true; }
-	void setImperial() {_inInch=true;}
-	void setMetric() {_inInch = false;}
-};
+	if(a == a){
+		std::cout << "OK a ==a" << std::endl;
+	}
 
+	if(a == *p){
+		std::cerr << "ERROR a == p!!!" << std::endl;
 
-#endif /* GEOMETRY_H_ */
+	}
+
+	if(a != *p){
+		std::cout << "OK a != p" << std::endl;
+
+	}
+
+	delete p;
+}
+
+void testAll(){
+	testOperators();
+
+}

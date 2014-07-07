@@ -91,6 +91,7 @@ void GerberGeometry::addLine(Cords* start, Cords* end, bool multiline) {
 
 	_shapes.push_back(Line_ptr(new Line(start, end, _curAperture->getWidth(), true)));
 
+	//Delete Temporary start coords if they were 0
 	if(delStart)
 		delete start;
 		
