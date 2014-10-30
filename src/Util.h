@@ -22,8 +22,15 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <Cords.h>
 
 #include <boost/tokenizer.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
+
+typedef boost::geometry::model::polygon<Cords> Polygon;
+typedef boost::geometry::model::multi_polygon<Polygon> MultiPolygon;
 
 namespace util{
 
@@ -34,7 +41,24 @@ void split(std::vector<std::string>* elems, const std::string& s, const char* de
 
 void writeFile(const std::string& file, const std::string& data);
 
+Cords getCirclePos(Cords mid, double radius, double gegree);
+
+//Only returns first polygon
+Polygon mergePolygon(Polygon poly1, Polygon poly2);
+
+///Obsolete already in boost::geometry boost::geometry::correct
+/// @deprecated
+void makeClockwise(Polygon* poly);
+bool isClockwise(const Polygon& poly);
+
+Polygon copyPolygon(const Polygon& poly);
+MultiPolygon copyMultiPolygon(const MultiPolygon& poly);
+
+
 
 }
+
+std::ostream& operator<<(std::ostream& os, const Polygon& c);
+std::ostream& operator<<(std::ostream& os, const MultiPolygon& c);
 
 #endif

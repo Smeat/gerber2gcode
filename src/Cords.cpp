@@ -17,10 +17,13 @@
 
 #include "Cords.h"
 
-Cords::Cords(double x, double y, bool inch) : _x(x), _y(y), _inInch(inch) {
+Cords::Cords(const double x, const double y, bool inch) : _x(x), _y(y), _inInch(inch) {
 	if(inch){
 		inchToMM();
 	}
+}
+
+Cords::Cords(double const& x, double const& y) : _x(x), _y(y), _inInch(false) {
 }
 
 Cords::Cords() {
@@ -43,12 +46,17 @@ void Cords::inchToMM(){
 	}
 }
 double Cords::getLength() const{
-	return (double) sqrt(pow(_x, 2)+pow(_y, 2));
+	return ::sqrt(::pow(_x, 2.0) + ::pow(_y, 2.0));
 }
 
 double Cords::getDistance(const Cords& ob) const{
 	Cords b = ob;
+	// (x1-x2), (y1-y2)
 	b -= *this;
 
 	return b.getLength();
+}
+std::ostream& operator<<(std::ostream& os, const Cords& c){
+	os << "( " << c.getX() << " " << c.getY() << " )";
+	return os;
 }

@@ -23,7 +23,7 @@ public:
 	Circle(Cords* _mid, double radius);
 	virtual ~Circle();
 
-	Cords getMid(){
+	Cords getMid() const{
 		return _mid;
 	}
 
@@ -31,7 +31,7 @@ public:
 		return &_mid;
 	}
 
-	double getRadius(){
+	double getRadius() const{
 		return _radius;
 	}
 

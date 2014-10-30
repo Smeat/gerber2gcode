@@ -21,6 +21,10 @@
 #include <cmath>
 //#include <boost/unordered_set.hpp>
 #include <boost/weak_ptr.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+
+#include <ostream>
+
 
 
 class Cords {
@@ -30,7 +34,8 @@ private:
 	//static boost::unordered_set<boost::weak_ptr<Cords> > objects;
 
 public:
-	Cords(double x, double y, bool inch = false);
+	Cords(const double x, const double y, bool inch);
+	Cords(double const& x, double const& y);
 	Cords();
 	virtual ~Cords();
 public:
@@ -40,19 +45,19 @@ public:
 	double getLength() const;
 	double getDistance(const Cords& ob) const;
 	
-	double getX(){
+	double const& getX() const{
 		return _x;
 	}
 	
-	double getY(){
+	double const& getY() const{
 		return _y;
 	}
 
-	void setX(double x){
+	void setX(double const& x){
 		_x = x;
 	}
 
-	void setY(double y){
+	void setY(double const& y){
 		_y = y;
 	}
 
@@ -145,9 +150,23 @@ public:
 		temp._y = a._y - b;
 		return temp;
 	}
+
+
 };
 
+std::ostream& operator<<(std::ostream& os, const Cords& c);
 
 typedef boost::shared_ptr<Cords> Cords_ptr;
+
+
+#include <boost/geometry/geometries/register/point.hpp>
+
+BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(Cords,
+												double,
+												cs::cartesian,
+												getX,
+												getY,
+												setX,
+												setY)/**/
 
 #endif /* CORDS_H_ */

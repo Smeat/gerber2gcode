@@ -22,8 +22,8 @@ GerberLoader::GerberLoader(){
 	_formatX = "23";
 	_formatY ="23";
 
-	_offsetX = -20;
-	_offsetY = -20;
+	_offsetX = 0;
+	_offsetY = 0;
 	_inInch = false;
 
 }
@@ -49,18 +49,25 @@ bool GerberLoader::generateGeometry() {
 	long lines = 0;
 	long circles = 0;
 	long moves = 0;
+	long rects = 0;
 
 	while(readLine(&line)){
 
+		//Comment
+		if(boost::starts_with(line, "G04")){
+			continue;
+		}
 		//Remove G01
 		if(boost::starts_with(line, "G01")){
 			line = line.substr(3, line.length());
 		}
 
-		// Get X and Y dimensions
+		// Get X and Y dimensions FIXME: fix!!!! Not correctly extracted!!
 		if(boost::starts_with(line, "%FSLA")){
 			_formatX = line.substr(6, 8);
 			_formatY = line.substr(9, 11);
+
+			printf("FormatX: %s FormatY: %s\n", _formatX.c_str(), _formatY.c_str());
 		}
 		else
 		if(boost::starts_with(line, "%ADD")){
@@ -134,6 +141,16 @@ bool GerberLoader::generateGeometry() {
 			_geo.selectAperture(aperture);
 
 		}
+		else // start polygon mode
+		if(boost::starts_with(line, "G36"))
+		{
+			_geo.enablePolygonMode();
+		}
+		else //end polygon mode
+		if(boost::starts_with(line, "G37"))
+		{
+			_geo.disablePolygonMode();
+		}
 		else
 		if(boost::starts_with(line, "X"))
 		{
@@ -153,21 +170,28 @@ bool GerberLoader::generateGeometry() {
 
 			if(d==1)
 			{
-				_geo.addLine(new Cords(x, y, _inInch));
+				_geo.addLine(Cords_ptr(new Cords(x, y, _inInch)));
 				++lines;
 			}
 			else
 			if(d==2)
 			{
-				_geo.goTo(new Cords(x, y, _inInch));
+				_geo.goTo(Cords_ptr(new Cords(x, y, _inInch)));
 				++moves;
 			}
 			else
 			if(d==3)
 			{
-				_geo.exposePoint(new Cords(x, y, _inInch));
-				++circles;
+				_geo.exposePoint(Cords_ptr(new Cords(x, y, _inInch)));
+
+				if(_geo.getCurrentApertureType() == 'C'){
+					++circles;
+				}
+				else{
+					++rects;
+				}
 			}
+
 		}
 		else
 		if(boost::starts_with(line, "D"))
@@ -182,10 +206,20 @@ bool GerberLoader::generateGeometry() {
 		}
 
 	}
+	//FIXME: remove!
+	fflush(stdout);
 
 	closeFile();
 
-	std::cout << "Loaded file with " << lines << " lines, " << circles << " circles and " << moves << " moves!" << std::endl;
+	std::cout << "Loaded file with " << lines << " lines, " << circles << " circles, " << rects << " rects and " << moves << " moves!" << std::endl;
+
+
+
+	_geo.generatePolygons();
+	_geo.generateInfill();
+
+
+
 
 	return true;
 }

@@ -23,9 +23,11 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <deque>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/geometry.hpp>
 
 #include "Cords.h"
 #include "shapes/Line.h"
@@ -33,6 +35,12 @@
 #include "Geometry.h"
 #include "shapes/Circle.h"
 #include "shapes/Shape.h"
+#include "shapes/Rectangle.h"
+#include "image/SVGExport.h"
+
+typedef boost::geometry::model::polygon<Cords> Polygon;
+typedef boost::geometry::model::linestring<Cords> Linestring;
+typedef boost::geometry::model::multi_polygon<Polygon> MultiPolygon;
 
 class Aperture{
 private:
@@ -71,7 +79,11 @@ private:
 	std::vector<Aperture*> _apertures;
 	Aperture* _curAperture;
 	Cords _lastCords;
-	
+	Polygon _curPoly;
+	bool _polyMode;
+
+	SVGExport _exporter, _exporterErr;
+
 public:
 	GerberGeometry();
 	virtual ~GerberGeometry();
@@ -85,15 +97,30 @@ public:
 	
 	
 
-	void addLine(Cords* end, bool multiline = true);
-	void addLine(Cords* start, Cords* end, bool multiline = true);
+	void addLine(Cords_ptr end);
+	void addLine(Cords_ptr start, Cords_ptr end);
+	void addPolygon(Polygon poly);
 	
-	void goTo(Cords* p);
+	void enablePolygonMode();
+	void disablePolygonMode();
+
+	void goTo(Cords_ptr p);
 
 
-	void exposePoint(Cords* p);
-	void createRec(Cords* p);
-	void createCircle(Cords* p);
+	void exposePoint(Cords_ptr p);
+	void createRec(Cords_ptr p);
+	void createCircle(Cords_ptr p);
+
+	void generatePolygons();
+	void mergePolygons(std::deque<Polygon>& polygons);
+	void generateInfill();
+
+	char getCurrentApertureType(){
+		return _curAperture->getType();
+	}
 };
+
+std::ostream& operator<<(std::ostream& os, const Polygon& c);
+std::ostream& operator<<(std::ostream& os, const MultiPolygon& c);
 
 #endif /* GerberGeometry_H_ */

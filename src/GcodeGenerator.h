@@ -20,12 +20,16 @@
 
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 #include "Cords.h"
 #include "shapes/Line.h"
 #include "Util.h"
 #include "shapes/Circle.h"
 #include "image/SVGExport.h"
+
+#include <boost/geometry/geometries/polygon.hpp>
+
 
 struct Statistics{
 	uint64_t lines;
@@ -53,7 +57,7 @@ private:
 	double _penWidth;
 	bool _arcSupport;
 	Cords _lastPos;
-	SVGExport *_export;
+	//SVGExport *_export;
 
 	Statistics _stats;
 	std::vector<Shape_ptr> _drawn;
@@ -93,6 +97,7 @@ public:
 
 	std::string getGCode();
 	void generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX = true, bool mirrorY = false);
+	void generateGcode(std::vector< boost::geometry::model::polygon<Cords> >* polygons);
 
 	bool writeData(const std::string& fileName);
 
@@ -101,7 +106,8 @@ private:
 	 * Go to position without drawing
 	 * @param p Coordinates
 	 */
-	void goTo(Cords* p);
+	void goTo(const Cords* p);
+	void goTo(const Cords& p);
 
 	/**
 	 * Move head low to enable drawing
@@ -140,10 +146,10 @@ private:
 	void drawCircle(Circle_ptr);
 
 	void G01(Cords start, Cords end);
+	void G01(Cords end);
 
 	Shape_ptr getNearestShape(std::vector<Shape_ptr>* shapes, Cords point, bool deleteElement = true);
 	double minDistanceTo(Shape_ptr shape, Cords point);
-	Cords getCirclePos(Cords mid, double radius, double gegree);
 
 	void mirrorYAxis(std::vector<Shape_ptr>* shapes);
 	void mirrorXAxis(std::vector<Shape_ptr>* shapes);

@@ -21,26 +21,27 @@
 #include "Cords.h"
 #include "Shape.h"
 
+#include <cmath>
+
 #include <boost/shared_ptr.hpp>
 
 class Line : public Shape{
 private:
 	Cords _start, _end;
 	double _width;
-	bool _isRound;
 
 	
 public:
-	Line(Cords& start, Cords& end, double width, bool isRound);
-	Line(Cords* start, Cords* end, double width, bool isRound);
+	Line(const Cords& start, const Cords& end, double width);
+	Line(Cords* start, Cords* end, double width);
 	Line();
 	virtual ~Line();
 	
-	Cords getStart(){
+	Cords getStart() const {
 		return _start;
 	}
 
-	Cords getEnd(){
+	Cords getEnd() const {
 		return _end;
 	}
 
@@ -52,12 +53,31 @@ public:
 		return &_end;
 	}
 
-	bool isRound() const {
-		return _isRound;
-	}
-
 	double getWidth() const {
 		return _width;
+	}
+
+	//Steigung der Geraden
+	double getSlope() const {
+		double a = _end.getY() - _start.getY();
+		double b = _end.getX() - _start.getX();
+
+		if(b == 0){
+			return INFINITY;
+		}
+		return a / b;
+	}
+
+	double getSlopeAngle() const {
+		double slope = getSlope();
+		if(slope == INFINITY){
+			return M_PI_2;
+		}
+		return std::atan(getSlope());
+	}
+
+	double getSlopeAngleDegree() const {
+		return getSlopeAngle() * 180 / M_PI;
 	}
 
 	/**

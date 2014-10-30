@@ -17,6 +17,8 @@
 
 #include "GcodeGenerator.h"
 
+#include <boost/foreach.hpp>
+
 #define OPTIMIZED
 
 GcodeGenerator::GcodeGenerator() {
@@ -26,7 +28,6 @@ GcodeGenerator::GcodeGenerator() {
 
 	_drawingHeight = 1.8;
 	_freemoveHeight = 3;//1.7f;
-	// TODO Auto-generated constructor stub
 
 	_gcodestr.precision(6);
 	_penWidth = 0.5;
@@ -34,6 +35,7 @@ GcodeGenerator::GcodeGenerator() {
 	_absolute = true;
 	_inInch = false;
 	_arcSupport = false;
+	_lastPos = Cords(0,0);
 }
 
 GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
@@ -51,6 +53,7 @@ GcodeGenerator::GcodeGenerator(int xyfeedrade, int zfeedrate, int movefeedrate,
 	_absolute = true;
 	_inInch = false;
 	_arcSupport = arcSupport;
+	_lastPos = Cords(0,0);
 }
 
 GcodeGenerator::~GcodeGenerator() {
@@ -77,22 +80,29 @@ void GcodeGenerator::disableDrawing() {
 	}
 }
 
-void GcodeGenerator::goTo(Cords* p) {
-	if(p == 0 || _lastPos == *p){
+void GcodeGenerator::goTo(const Cords* p) {
+	if(p != 0){
+		goTo(*p);
+	}
+}
+
+void GcodeGenerator::goTo(const Cords& p){
+	if(_lastPos == p){
 		return;
 	}
-	_gcodestr << ";GoTo Distance: " <<_lastPos.getDistance(*p) << "\n";
+	_gcodestr << ";GoTo Distance: " <<_lastPos.getDistance(p) << "\n";
 
 
-	if(_lastPos.getDistance(*p) > _penWidth*1.005)
+	if(_lastPos.getDistance(p) > _penWidth*1.005)
 		disableDrawing();
 
-	_gcodestr << "G1 X" << p->getX() << " Y" << p->getY() << " F" << _moveFeedrate << "\n";
-	_stats.distance += _lastPos.getDistance(*p);
-	_lastPos = *p;
+	_gcodestr << "G1 X" << p.getX() << " Y" << p.getY() << " F" << _moveFeedrate << "\n";
+	_stats.distance += _lastPos.getDistance(p);
+	_lastPos = p;
 	enableDrawing();
 
 	++_stats.moves;
+
 }
 
 void GcodeGenerator::enableAbsolute() {
@@ -116,9 +126,32 @@ std::string GcodeGenerator::getGCode() {
 	return _gcodestr.str();
 }
 
+void GcodeGenerator::generateGcode(std::vector< boost::geometry::model::polygon<Cords> >* polygons){
+	enableAbsolute();
+
+
+	for(auto iter = polygons->begin(); iter != polygons->end(); ++iter){
+		_gcodestr << ";----Drawing Polygon----\n";
+		goTo(&(*(iter->outer().rbegin())));
+		//Draw outer Polygons
+		for(auto outer = iter->outer().begin(); outer != iter->outer().end(); ++outer){
+			G01(*outer);
+		}
+		//Draw inner. Only for enclosing polygons
+		for(auto inner_ring = iter->inners().begin(); inner_ring != iter->inners().end(); ++inner_ring){
+			//Go to last point on polygon == first point
+			goTo(&(*(inner_ring->rbegin())));
+			for(auto inner = inner_ring->begin() ; inner != inner_ring->end(); ++inner){
+				G01(*inner);
+			}
+
+		}
+	}
+}
+
 void GcodeGenerator::generateGcode(std::vector<Shape_ptr>* shapes, bool mirrorX, bool mirrorY) {
 
-	_export = new SVGExport("test.svg", 100, 100);
+	//_export = new SVGExport("test.svg", 100, 100);
 
 	//zeroShapes(shapes);
 
@@ -260,7 +293,7 @@ void GcodeGenerator::drawCircle(Circle_ptr circle) {
 
 
 	for(double i = _penWidth; i < radius; i+=_penWidth){
-		Cords bottom = getCirclePos(mid, i, 270); ///Go to the bottom of the circle
+		Cords bottom = util::getCirclePos(mid, i, 270); ///Go to the bottom of the circle
 
 		if(_arcSupport){
 			goTo(&bottom);
@@ -269,7 +302,7 @@ void GcodeGenerator::drawCircle(Circle_ptr circle) {
 		}
 		else {
 			for(double j = 0; j < 360; j+= 360/6){
-				G01(_lastPos, getCirclePos(mid, i, j));
+				G01(_lastPos, util::getCirclePos(mid, i, j));
 			}
 		}
 		_lastPos = bottom;
@@ -284,27 +317,27 @@ void GcodeGenerator::drawCircle(Circle_ptr circle) {
 
 bool GcodeGenerator::writeData(const std::string& fileName) {
 	util::writeFile(fileName, getGCode()); //TODO: move to base class
-	_export->write();
+	printf("Writing output file \"%s\"\n", fileName.c_str());
+	//_export->write();
 	return true;
 }
 
 void GcodeGenerator::G01(Cords start, Cords end) {
 	goTo(&start);
+	G01(end);
+}
+
+void GcodeGenerator::G01(Cords end) {
 	_gcodestr << "G01 X" << end.getX() << " Y" << end.getY() << " F" << _XYFeedrate << '\n';
 
+	//_export->addLine(_lastPos, end, _penWidth);
 	_stats.distance += _lastPos.getDistance(end);
 	_lastPos = end;
 
-	_export->addLine(start, end, _penWidth);
+
 
 	++_stats.lines;
-}
 
-Cords GcodeGenerator::getCirclePos(Cords mid, double radius, double gegree) {
-	double x = mid.getX() + radius * cos(gegree * M_PI /180.0);
-	double y = mid.getY() + radius * sin(gegree * M_PI /180.0);
-
-	return Cords(x,y);
 }
 
 /*void GcodeGenerator::zeroShapes(std::vector<Shape_ptr>* shapes){
@@ -338,8 +371,8 @@ void GcodeGenerator::mirrorYAxis(std::vector<Shape_ptr>* shapes) {
 			minY = (localMin < minY) ? localMin : minY;
 		}
 		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
-			double localMin = (getCirclePos(circle->getMid(), circle->getRadius(), 180)).getY(); //most right
-			double localMax = (getCirclePos(circle->getMid(), circle->getRadius(), 0)).getY(); //Most left
+			double localMin = (util::getCirclePos(circle->getMid(), circle->getRadius(), 180)).getY(); //most right
+			double localMax = (util::getCirclePos(circle->getMid(), circle->getRadius(), 0)).getY(); //Most left
 
 			maxY = (localMax > maxY) ? localMax : maxY;
 			minY = (localMin < minY) ? localMin : minY;
@@ -372,8 +405,8 @@ void GcodeGenerator::mirrorXAxis(std::vector<Shape_ptr>* shapes) {
 			minX = (localMin < minX) ? localMin : minX;
 		}
 		else if(Circle_ptr circle = boost::dynamic_pointer_cast<Circle>(*iter)){
-			double localMin = (getCirclePos(circle->getMid(), circle->getRadius(), 180)).getX(); //most right
-			double localMax = (getCirclePos(circle->getMid(), circle->getRadius(), 0)).getX(); //Most left
+			double localMin = (util::getCirclePos(circle->getMid(), circle->getRadius(), 180)).getX(); //most right
+			double localMax = (util::getCirclePos(circle->getMid(), circle->getRadius(), 0)).getX(); //Most left
 
 			maxX = (localMax > maxX) ? localMax : maxX;
 			minX = (localMin < minX) ? localMin : minX;

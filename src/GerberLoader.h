@@ -48,6 +48,7 @@ public:
 
 	bool generateGeometry();
 	std::vector<Shape_ptr>* getLines(){ return _geo.getLines();}
+	std::vector< boost::geometry::model::polygon<Cords> >* getPolygons(){ return _geo.getPolygons();}
 
 private:
 	bool readLine(std::string* line);

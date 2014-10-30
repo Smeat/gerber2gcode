@@ -19,10 +19,18 @@
 #define GEOMETRY_H_
 
 #include "shapes/Line.h"
+#include "Cords.h"
+#include <vector>
+#include "shapes/Shape.h"
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 class Geometry{
 protected:
 	std::vector<Shape_ptr> _shapes;
+	boost::geometry::model::multi_polygon< boost::geometry::model::polygon<Cords> > _polygons;
+	std::vector<Linestring> _infill;
+	//std::vector< boost::geometry::model::polygon<Cords> > _polygons;
 	bool _inInch;
 	bool _absolute;
 
@@ -33,11 +41,13 @@ public:
 	}
 	virtual ~Geometry(){}
 
-	virtual void addLine(Cords* end, bool multiline = true) = 0;
-	virtual void addLine(Cords* start, Cords* end, bool multiline = true) = 0;
-	virtual void createRec(Cords* p) = 0;
-	virtual void createCircle(Cords* p) = 0;
+	virtual void addLine(Cords_ptr end) = 0;
+	virtual void addLine(Cords_ptr start, Cords_ptr end) = 0;
+	virtual void createRec(Cords_ptr p) = 0;
+	virtual void createCircle(Cords_ptr p) = 0;
 	virtual std::vector<Shape_ptr>* getLines() { return &_shapes;}
+
+	virtual std::vector< boost::geometry::model::polygon<Cords> >* getPolygons() { return &_polygons;}
 
 	void enableRelative(){ _absolute = false;}
 	void enableAbsolute(){ _absolute = true; }
